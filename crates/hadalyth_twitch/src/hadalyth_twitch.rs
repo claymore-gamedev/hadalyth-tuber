@@ -1,5 +1,6 @@
 use godot::prelude::*;
 
+use crate::custom_config::hadalyth_twitch_client_id::HadalythTwitchClientId;
 use crate::custom_config::hadalyth_twitch_eventsubs::HadalythTwitchEventSubs;
 use crate::custom_config::hadalyth_twitch_scopes::HadalythTwitchScopes;
 use crate::custom_events::socket_event::SocketEvent;
@@ -16,7 +17,7 @@ use crate::hadalyth_twitch_async::*;
 #[derive(GodotClass)]
 #[class(base=Node)]
 pub struct HadalythTwitch {
-    client_id: Option<String>,
+    client_id: Option<Gd<HadalythTwitchClientId>>,
     scopes: Option<Gd<HadalythTwitchScopes>>,
     eventsubs: Option<Gd<HadalythTwitchEventSubs>>,
 
@@ -75,16 +76,6 @@ impl INode for HadalythTwitch {
     }
 
     fn ready(&mut self) {
-        // Load the client id from a text file next to the executable
-        let client_id = std::fs::read_to_string("twitch_id.txt");
-        let Ok(client_id) = client_id else {
-            godot_error!("TwitchError: no twitch_id.txt");
-            return;
-        };
-        let client_id = client_id.trim().to_string();
-        godot_print!("TwitchInfo: loaded client_id {}", client_id);
-        self.client_id = Some(client_id);
-
         // Try to start a tokio runtime for later async tasks
         let runtime = tokio::runtime::Runtime::new();
         let Ok(runtime) = runtime else {
@@ -314,9 +305,9 @@ impl HadalythTwitch {
     // END OF EVENT SUB SIGNALS
 
     #[signal]
-    fn device_user_token_status(status: bool);
+    pub fn device_user_token_status(status: bool);
     #[signal]
-    fn twitch_socket_status(status: bool);
+    pub fn twitch_socket_status(status: bool);
 }
 
 #[godot_api(secondary)]
@@ -332,7 +323,12 @@ impl HadalythTwitch {
     }
 
     #[func]
-    fn init_device_user_token(&mut self) {
+    fn set_client_id(&mut self, client_id : Option<Gd<HadalythTwitchClientId>>) {
+        self.client_id = client_id;
+    }
+
+    #[func]
+    pub fn _init_device_user_token(&mut self) {
         let Some(ref runtime) = self.runtime else {
             let tx = self.tx.clone();
             let _ = tx.send(TwitchEvent::DeviceUserTokenStatus(None));
@@ -350,42 +346,32 @@ impl HadalythTwitch {
             return;
         };
 
-        let Some(ref client_id) = self.client_id else {
-            godot_print!("Failed to initialize client id");
+        let Some(ref mut client_id) = self.client_id else {
+            godot_print!("Client ID not set");
             return;
         };
-        let client_id = twitch_api::twitch_oauth2::ClientId::new(client_id.clone());
-        godot_print!("{}", client_id);
-
+        let client_id = client_id.bind_mut().get_twitch_api_client_id();
+        
         let Some(ref mut scopes) = self.scopes else {
             godot_print!("Scopes not set");
             return;
         };
         let scopes = scopes.bind_mut().get_twitch_api_scopes();
 
-        // let scopes = vec![
-        //     twitch_api::twitch_oauth2::scopes::Scope::BitsRead,
-        //     twitch_api::twitch_oauth2::scopes::Scope::ModeratorReadFollowers,
-        //     twitch_api::twitch_oauth2::scopes::Scope::ChannelReadAds,
-        //     twitch_api::twitch_oauth2::scopes::Scope::UserReadChat,
-        //     twitch_api::twitch_oauth2::scopes::Scope::ChannelReadSubscriptions,
-        //     twitch_api::twitch_oauth2::scopes::Scope::ChannelReadRedemptions,
-        //     twitch_api::twitch_oauth2::scopes::Scope::ChannelManageRedemptions,
-        //     twitch_api::twitch_oauth2::scopes::Scope::ChannelReadHypeTrain,
-        //     twitch_api::twitch_oauth2::scopes::Scope::ModeratorReadShoutouts,
-        //     twitch_api::twitch_oauth2::scopes::Scope::ModeratorManageShoutouts,
-        // ];
-
+        // Clone parameters
         let tx = self.tx.clone();
         let http_client = twitch.clone_client();
-        let token_builder =
-            twitch_api::twitch_oauth2::DeviceUserTokenBuilder::new(client_id, scopes);
-
+        let token_builder = twitch_api::twitch_oauth2::DeviceUserTokenBuilder::new(
+            client_id, 
+            scopes
+        );
+        
+        // Spawn device user token auth
         runtime.spawn(init_device_user_token_async(tx, http_client, token_builder));
     }
 
     #[func]
-    fn init_twitch_socket(&mut self) {
+    pub fn _init_twitch_socket(&mut self) {
         let Some(ref runtime) = self.runtime else {
             godot_print!("Tokio runtime not initialized");
             return;
@@ -424,7 +410,7 @@ impl HadalythTwitch {
     }
 
     #[func]
-    fn init_subscribe_eventsubs(&mut self) {
+    pub fn _init_subscribe_eventsubs(&mut self) {
         let Some(ref runtime) = self.runtime else {
             godot_print!("Tokio runtime not initialized");
             return;
@@ -458,16 +444,37 @@ impl HadalythTwitch {
         ));
     }
 
+
     #[func]
-    fn kill_helix_client(&mut self) {
+    fn init_twitch(&mut self) {
+
+        let this = self.to_gd(); 
+        godot::task::spawn(
+            async move {
+                init_twitch_async(this).await;
+            }
+        );
+    }
+
+
+    #[func]
+    fn _kill_helix_client(&mut self) {
         self.twitch = None;
     }
 
+
     #[func]
-    fn kill_twitch_socket(&mut self) {
+    fn _kill_twitch_socket(&mut self) {
         let Some(ref socket_tx) = self.socket_tx else {
             return;
         };
         let _ = socket_tx.send(SocketEvent::SocketClose);
+    }
+
+    
+    #[func]
+    fn kill_twitch(&mut self) {
+        self._kill_helix_client();
+        self._kill_twitch_socket();
     }
 }
