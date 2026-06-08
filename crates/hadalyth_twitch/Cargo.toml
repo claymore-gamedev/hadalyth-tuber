@@ -1,0 +1,19 @@
+[package]
+name = "hadalyth-twitch"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+godot = {workspace = true, features=["serde"]}
+tokio = {workspace = true, features=["full"]}
+tokio-tungstenite = {workspace = true, features = ["rustls-tls-native-roots"] }
+serde = {workspace = true}
+serde_json = {workspace = true}
+serde_derive = {workspace = true}
+twitch_api = {workspace = true, features = ["eventsub", "helix", "reqwest", "twitch_oauth2"] }
+twitch_oauth2 = {workspace = true, features=["reqwest"]}
+reqwest = {workspace = true, features = ["json"] }
+futures-util = {workspace = true}
