@@ -1,9 +1,16 @@
 use godot::prelude::*;
 
-use crate::resources::hadalyth_twitch_scopes::HadalythTwitchScopes;
-use crate::resources::hadalyth_twitch_eventsubs::HadalythTwitchEventSubs;
-use crate::hadalyth_twitch_resources::{Broadcaster, Message, User};
-use crate::hadalyth_twitch_enums::{TwitchEvent, SocketEvent};
+use crate::custom_config::hadalyth_twitch_scopes::HadalythTwitchScopes;
+use crate::custom_config::hadalyth_twitch_eventsubs::HadalythTwitchEventSubs;
+use crate::custom_events::socket_event::SocketEvent;
+use crate::custom_events::twitch_event::TwitchEvent;
+
+use crate::custom_resources::broadcaster::Broadcaster;
+use crate::custom_resources::user::{self, User};
+use crate::custom_resources::moderator::Moderator;
+use crate::custom_resources::fragment::Fragment;
+use crate::custom_resources::message::Message;
+
 use crate::hadalyth_twitch_async::*;
 
 #[derive(GodotClass)]
@@ -147,7 +154,16 @@ impl HadalythTwitch {
         reason      : String,
         user        : Gd<User>
     );
-    #[signal] pub fn recv_automod_message_update_v2();
+    #[signal] pub fn recv_automod_message_update_v2(
+        broadcaster : Gd<Broadcaster>,
+        held_at     : String,
+        message     : Gd<Message>,
+        message_id  : String,
+        moderator   : Gd<Moderator>,
+        reason      : String,
+        status      : String,
+        user        : Gd<User>
+    );
     #[signal] pub fn recv_automod_settings_update_v1();
     #[signal] pub fn recv_automod_terms_update_v1();
     #[signal] pub fn recv_channel_ad_break_begin_v1();

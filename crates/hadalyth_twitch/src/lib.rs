@@ -2,10 +2,10 @@ use godot::prelude::*;
 
 struct HadalythTwitchExtensionLibrary;
 
-mod resources;
+mod custom_config;
+mod custom_events;
+mod custom_resources;
 
-mod hadalyth_twitch_resources;
-mod hadalyth_twitch_enums;
 mod hadalyth_twitch_async;
 mod hadalyth_twitch_parse_event;
 mod hadalyth_twitch;

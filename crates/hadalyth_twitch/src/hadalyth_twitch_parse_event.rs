@@ -1,9 +1,36 @@
 use godot::prelude::*;
-use twitch_api::eventsub::automod::message::AutomodHeldReason;
+use twitch_api::eventsub::automod::message::{AutomodHeldReason, AutomodMessage};
 
-use crate::hadalyth_twitch_resources::{Broadcaster, Fragment, Message, User};
+use crate::custom_resources::broadcaster::Broadcaster;
+use crate::custom_resources::user::User;
+use crate::custom_resources::moderator::Moderator;
+use crate::custom_resources::fragment::Fragment;
+use crate::custom_resources::message::Message;
 
 use super::hadalyth_twitch::HadalythTwitch;
+
+trait ToGodotMessage {
+    fn to_godot_message(&self) -> Gd<Message>;
+}
+
+impl ToGodotMessage for AutomodMessage {
+    fn to_godot_message(&self) -> Gd<Message> {
+        let message_text = self.text.to_godot();
+        let mut message_fragments : Array<Gd<Fragment>> = array![];
+        for fragment in self.fragments.as_slice() {
+            let fragment = Fragment::create(
+                fragment.text().to_godot(),
+                None
+            );
+            message_fragments.push(&fragment);
+        }
+        let message = Message::create(
+            message_text, 
+            message_fragments
+        );
+        return message;
+    }
+}
 
 #[godot_api(secondary)]
 impl HadalythTwitch {
@@ -26,41 +53,17 @@ impl HadalythTwitch {
 
                         let held_at = payload.held_at.to_string();
                         
-                        let message = payload.message;
-                        let message_text = message.text.to_godot();
-                        let mut message_fragments : Array<Gd<Fragment>> = array![];
-                        for fragment in message.fragments {
-                            let fragment = Fragment::create(
-                                fragment.text().to_godot(),
-                                None
-                            );
-                            message_fragments.push(&fragment);
-                        }
-                        let message = Message::create(
-                            message_text, 
-                            message_fragments
-                        );
+                        let message = payload.message.to_godot_message();
 
                         let message_id = payload.message_id.to_string();
-                        let reason = payload.reason;
-                        let reason = match reason {
-                            AutomodHeldReason::Automod(info) => {
-                                format!("{:?}", info)
-                            }
-                            AutomodHeldReason::BlockedTerm(info) => {
-                                format!("{:?}", info)
-                            }
-                            _ => {
-                                "AutomodHeldReason invalid".to_string()
-                            }
-                        };
+
+                        let reason = format!("{:?}", payload.reason);
 
                         let user = User::create(
                             payload.user_id.to_string().to_godot(),
                             payload.user_login.to_string().to_godot(),
                             payload.user_name.to_string().to_godot(),
                         );
-
 
                         self.signals().recv_automod_message_hold_v2().emit(
                             &broadcaster,
@@ -82,6 +85,45 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+                        
+                        let broadcaster = Broadcaster::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot()
+                        );
+                        
+                        let held_at = payload.held_at.to_string();
+
+                        let message = payload.message.to_godot_message();
+                        
+                        let message_id = payload.message_id.to_string();
+                        
+                        let moderator = Moderator::create(
+                            payload.moderator_user_id.to_string().to_godot(),
+                            payload.moderator_user_login.to_string().to_godot(),
+                            payload.moderator_user_name.to_string().to_godot()
+                        );
+                        
+                        let reason = format!("{:?}", payload.reason);
+                        
+                        let status = format!("{:?}", payload.status);
+                        
+                        let user = User::create(
+                            payload.user_id.to_string().to_godot(),
+                            payload.user_login.to_string().to_godot(),
+                            payload.user_name.to_string().to_godot(),
+                        );
+
+                        self.signals().recv_automod_message_update_v2().emit(
+                            &broadcaster,
+                            held_at,
+                            &message,
+                            message_id,
+                            &moderator,
+                            reason,
+                            status,
+                            &user
+                        );
                     }
                     _ => {}
                 }
