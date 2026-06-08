@@ -1,6 +1,8 @@
 use godot::prelude::*;
 
-use crate::hadalyth_twitch_resources::{Broadcaster, HadalythTwitchEventSubs, HadalythTwitchScopes, Message, User};
+use crate::resources::hadalyth_twitch_scopes::HadalythTwitchScopes;
+use crate::resources::hadalyth_twitch_eventsubs::HadalythTwitchEventSubs;
+use crate::hadalyth_twitch_resources::{Broadcaster, Message, User};
 use crate::hadalyth_twitch_enums::{TwitchEvent, SocketEvent};
 use crate::hadalyth_twitch_async::*;
 

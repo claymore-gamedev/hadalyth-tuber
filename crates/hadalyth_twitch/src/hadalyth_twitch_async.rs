@@ -2,8 +2,8 @@
 use twitch_oauth2::TwitchToken;
 use futures_util::stream::StreamExt;
 
+use crate::resources::hadalyth_twitch_eventsubs::TwitchApiEventSubs;
 use crate::hadalyth_twitch_enums::{TwitchEvent, SocketEvent};
-use crate::hadalyth_twitch_resources::TwitchApiEventSubs;
 
 const TWITCH_EVENTSUB_WEBSOCKET_URL : &str = "wss://eventsub.wss.twitch.tv/ws";
 
