@@ -2,7 +2,9 @@ pub mod broadcaster;
 pub mod moderator;
 pub mod user;
 
+pub mod cheermote;
 pub mod emote;
+pub mod mention;
 pub mod fragment;
 pub mod message;
 

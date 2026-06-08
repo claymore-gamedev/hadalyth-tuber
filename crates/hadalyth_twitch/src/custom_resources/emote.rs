@@ -13,7 +13,7 @@ pub struct Emote {
     owner_id: GString,
 
     #[var]
-    format: GString,
+    format: Array<GString>,
 }
 
 #[godot_api]
@@ -23,7 +23,7 @@ impl Emote {
         id: GString,
         emote_set_id: GString,
         owner_id: GString,
-        format: GString,
+        format: Array<GString>,
     ) -> Gd<Self> {
         return Gd::from_object(Self {
             id,

@@ -1,44 +1,14 @@
 use godot::prelude::*;
-use twitch_api::eventsub::automod::message::AutomodMessage;
 
 use crate::custom_resources::bits_custom_power_up::BitsCustomPowerUp;
 use crate::custom_resources::broadcaster::Broadcaster;
-use crate::custom_resources::fragment::Fragment;
 use crate::custom_resources::message::Message;
 use crate::custom_resources::moderator::Moderator;
 use crate::custom_resources::user::User;
 
+use crate::custom_traits::to_godot_message::ToGodotMessage;
+
 use super::hadalyth_twitch::HadalythTwitch;
-
-trait ToGodotMessage {
-    fn to_godot_message(&self) -> Gd<Message>;
-}
-
-impl ToGodotMessage for AutomodMessage {
-    fn to_godot_message(&self) -> Gd<Message> {
-        let message_text = self.text.to_godot();
-        let mut message_fragments: Array<Gd<Fragment>> = array![];
-        for fragment in self.fragments.as_slice() {
-            let fragment = Fragment::create(fragment.text().to_godot(), None);
-            message_fragments.push(&fragment);
-        }
-        let message = Message::create(message_text, message_fragments);
-        return message;
-    }
-}
-
-impl ToGodotMessage for twitch_api::common::chat::Message {
-    fn to_godot_message(&self) -> Gd<Message> {
-        let message_text = self.text.to_godot();
-        let mut message_fragments: Array<Gd<Fragment>> = array![];
-        for fragment in self.fragments.as_slice() {
-            let fragment = Fragment::create(fragment.text().to_godot(), None);
-            message_fragments.push(&fragment);
-        }
-        let message = Message::create(message_text, message_fragments);
-        return message;
-    }
-}
 
 #[godot_api(secondary)]
 impl HadalythTwitch {
