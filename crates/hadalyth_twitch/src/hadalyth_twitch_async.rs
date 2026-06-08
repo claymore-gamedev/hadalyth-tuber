@@ -416,8 +416,10 @@ pub async fn init_subscribe_eventsubs_async(
     if eventsubs.channel_charity_campaign_progress_v1 {
         // channel.bits.use
         let result = twitch.create_eventsub_subscription(
-            twitch_api::eventsub::channel::ChannelCharityCampaignProgressV1::broadcaster_user_id(token.user_id.clone()),
-            twitch_api::eventsub::Transport::websocket(&session_id), 
+            twitch_api::eventsub::channel::ChannelCharityCampaignProgressV1::broadcaster_user_id(
+                token.user_id.clone()
+            ),
+            twitch_api::eventsub::Transport::websocket(&session_id),
             &token.clone()
         ).await;
         let _ = tx.send(TwitchEvent::Debug(format!("{:?}", result)));
@@ -608,8 +610,10 @@ pub async fn init_subscribe_eventsubs_async(
     if eventsubs.channel_points_automatic_reward_redemption_add_v1 {
         // channel.bits.use
         let result = twitch.create_eventsub_subscription(
-            twitch_api::eventsub::channel::ChannelPointsAutomaticRewardRedemptionAddV1::broadcaster_user_id(token.user_id.clone()),
-            twitch_api::eventsub::Transport::websocket(&session_id), 
+            twitch_api::eventsub::channel::ChannelPointsAutomaticRewardRedemptionAddV1::broadcaster_user_id(
+                token.user_id.clone()
+            ),
+            twitch_api::eventsub::Transport::websocket(&session_id),
             &token.clone()
         ).await;
         let _ = tx.send(TwitchEvent::Debug(format!("{:?}", result)));
@@ -630,8 +634,10 @@ pub async fn init_subscribe_eventsubs_async(
     if eventsubs.channel_points_custom_reward_update_v1 {
         // channel.bits.use
         let result = twitch.create_eventsub_subscription(
-            twitch_api::eventsub::channel::ChannelPointsCustomRewardUpdateV1::broadcaster_user_id(token.user_id.clone()),
-            twitch_api::eventsub::Transport::websocket(&session_id), 
+            twitch_api::eventsub::channel::ChannelPointsCustomRewardUpdateV1::broadcaster_user_id(
+                token.user_id.clone()
+            ),
+            twitch_api::eventsub::Transport::websocket(&session_id),
             &token.clone()
         ).await;
         let _ = tx.send(TwitchEvent::Debug(format!("{:?}", result)));
@@ -639,8 +645,10 @@ pub async fn init_subscribe_eventsubs_async(
     if eventsubs.channel_points_custom_reward_remove_v1 {
         // channel.bits.use
         let result = twitch.create_eventsub_subscription(
-            twitch_api::eventsub::channel::ChannelPointsCustomRewardRemoveV1::broadcaster_user_id(token.user_id.clone()),
-            twitch_api::eventsub::Transport::websocket(&session_id), 
+            twitch_api::eventsub::channel::ChannelPointsCustomRewardRemoveV1::broadcaster_user_id(
+                token.user_id.clone()
+            ),
+            twitch_api::eventsub::Transport::websocket(&session_id),
             &token.clone()
         ).await;
         let _ = tx.send(TwitchEvent::Debug(format!("{:?}", result)));
@@ -648,8 +656,10 @@ pub async fn init_subscribe_eventsubs_async(
     if eventsubs.channel_points_custom_reward_redemption_add_v1 {
         // channel.bits.use
         let result = twitch.create_eventsub_subscription(
-            twitch_api::eventsub::channel::ChannelPointsCustomRewardRedemptionAddV1::broadcaster_user_id(token.user_id.clone()),
-            twitch_api::eventsub::Transport::websocket(&session_id), 
+            twitch_api::eventsub::channel::ChannelPointsCustomRewardRedemptionAddV1::broadcaster_user_id(
+                token.user_id.clone()
+            ),
+            twitch_api::eventsub::Transport::websocket(&session_id),
             &token.clone()
         ).await;
         let _ = tx.send(TwitchEvent::Debug(format!("{:?}", result)));
@@ -657,8 +667,10 @@ pub async fn init_subscribe_eventsubs_async(
     if eventsubs.channel_points_custom_reward_redemption_update_v1 {
         // channel.bits.use
         let result = twitch.create_eventsub_subscription(
-            twitch_api::eventsub::channel::ChannelPointsCustomRewardRedemptionUpdateV1::broadcaster_user_id(token.user_id.clone()),
-            twitch_api::eventsub::Transport::websocket(&session_id), 
+            twitch_api::eventsub::channel::ChannelPointsCustomRewardRedemptionUpdateV1::broadcaster_user_id(
+                token.user_id.clone()
+            ),
+            twitch_api::eventsub::Transport::websocket(&session_id),
             &token.clone()
         ).await;
         let _ = tx.send(TwitchEvent::Debug(format!("{:?}", result)));
