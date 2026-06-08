@@ -5,9 +5,14 @@ use godot::prelude::*;
 pub struct HadalythTwitchScopes {
     base : Base<Resource>,
 
+    #[export_group(name="Analytics")]
     #[export] analytics_read_extensions : bool,         
-    #[export] analytics_read_games : bool,              
-    #[export] bits_read : bool,                         
+    #[export] analytics_read_games : bool,
+    
+    #[export_group(name="Bits")]              
+    #[export] bits_read : bool, 
+
+    #[export_group(name="Channel")]                        
     #[export] channel_bot : bool,                       
     #[export] channel_edit_commercial : bool,           
     #[export] channel_manage_ads : bool,                
@@ -36,11 +41,19 @@ pub struct HadalythTwitchScopes {
     #[export] channel_read_stream_key : bool,           
     #[export] channel_read_subscriptions : bool,        
     #[export] channel_read_vips : bool,                 
+    
+    #[export_group(name="Chat")]
     #[export] chat_edit : bool,                         
     #[export] chat_read : bool,                         
+
+    #[export_group(name="Clips")]
     #[export] clips_edit : bool,                        
     #[export] editor_manage_clips : bool,               
+
+    #[export_group(name="Moderation")]
     #[export] moderation_read : bool,                   
+
+    #[export_group(name="Moderator")]
     #[export] moderator_manage_announcements : bool,    
     #[export] moderator_manage_automod : bool,          
     #[export] moderator_manage_automod_settings : bool, 
@@ -68,7 +81,9 @@ pub struct HadalythTwitchScopes {
     #[export] moderator_read_suspicious_users : bool,   
     #[export] moderator_read_unban_requests : bool,     
     #[export] moderator_read_vips : bool,               
-    #[export] moderator_read_warnings : bool,           
+    #[export] moderator_read_warnings : bool,       
+
+    #[export_group(name="User")]    
     #[export] user_bot : bool,                          
     #[export] user_edit : bool,                         
     #[export] user_edit_broadcast : bool,               
@@ -84,7 +99,9 @@ pub struct HadalythTwitchScopes {
     #[export] user_read_moderated_channels : bool,      
     #[export] user_read_subscriptions : bool,           
     #[export] user_read_whispers : bool,                
-    #[export] user_write_chat : bool,                   
+    #[export] user_write_chat : bool,
+
+    #[export_group(name="Whispers")]                
     #[export] whispers_read : bool,                     
 }
 
@@ -183,12 +200,15 @@ impl HadalythTwitchScopes {
 pub struct HadalythTwitchEventSubs {
     base : Base<Resource>,
 
+    #[export_group(name="Automod")]
     // #[export] pub automod_message_hold_v1 : bool,
     #[export] pub automod_message_hold_v2 : bool,
     // #[export] pub automod_message_update_v1 : bool,
     #[export] pub automod_message_update_v2 : bool,
     #[export] pub automod_settings_update_v1 : bool,
     #[export] pub automod_terms_update_v1 : bool,
+
+    #[export_group(name="Channel")]
     #[export] pub channel_ad_break_begin_v1 : bool,
     #[export] pub channel_bits_use_v1 : bool,
     #[export] pub channel_chat_clear_v1 : bool,
@@ -248,18 +268,23 @@ pub struct HadalythTwitchEventSubs {
     #[export] pub channel_moderate_v2 : bool,
     #[export] pub channel_moderator_add_v1 : bool,
     #[export] pub channel_moderator_remove_v1 : bool,
+    #[export] pub channel_subscription_end_v1 : bool,
+    #[export] pub channel_subscription_gift_v1 : bool,
+    #[export] pub channel_subscription_message_v1 : bool,
+
     // #[export] pub conduit_shard_disabled_v1 : bool,
     // #[export] pub extension_bits_transaction_create_v1 : bool,
+    
+    #[export_group(name="Stream")]
     #[export] pub stream_online_v1 : bool,
     #[export] pub stream_offline_v1 : bool,
+    
+    #[export_group(name="User")]
     #[export] pub user_update_v1 : bool,
     // #[export] pub user_authorization_grant_v1 : bool,
     // #[export] pub user_authorization_revoke_v1 : bool,
     #[export] pub user_whisper_message_v1 : bool,
-    #[export] pub channel_subscription_end_v1 : bool,
-    #[export] pub channel_subscription_gift_v1 : bool,
-    #[export] pub channel_subscription_message_v1 : bool
-}
+    }
 pub struct TwitchApiEventSubs {
     pub automod_message_hold_v2 : bool,
     pub automod_message_update_v2 : bool,
