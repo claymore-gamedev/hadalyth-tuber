@@ -6,9 +6,8 @@ use crate::custom_events::socket_event::SocketEvent;
 use crate::custom_events::twitch_event::TwitchEvent;
 
 use crate::custom_resources::broadcaster::Broadcaster;
-use crate::custom_resources::user::{self, User};
+use crate::custom_resources::user::User;
 use crate::custom_resources::moderator::Moderator;
-use crate::custom_resources::fragment::Fragment;
 use crate::custom_resources::message::Message;
 
 use crate::hadalyth_twitch_async::*;
