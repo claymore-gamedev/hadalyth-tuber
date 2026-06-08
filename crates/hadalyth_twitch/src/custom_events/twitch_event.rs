@@ -1,6 +1,5 @@
 // Events to be processed in the main thread
 pub enum TwitchEvent {
-
     Debug(String),
 
     DeviceUserTokenRequest(String, u64),

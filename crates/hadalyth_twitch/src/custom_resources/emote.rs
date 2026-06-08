@@ -4,34 +4,32 @@ use godot::prelude::*;
 #[class(no_init)]
 pub struct Emote {
     #[var]
-    id : GString,
+    id: GString,
 
     #[var]
-    emote_set_id : GString,
+    emote_set_id: GString,
 
     #[var]
-    owner_id : GString,
+    owner_id: GString,
 
     #[var]
-    format : GString,
+    format: GString,
 }
 
 #[godot_api]
 impl Emote {
     #[func]
     pub fn create(
-        id : GString,
-        emote_set_id : GString,
-        owner_id : GString,
-        format : GString
+        id: GString,
+        emote_set_id: GString,
+        owner_id: GString,
+        format: GString,
     ) -> Gd<Self> {
-        return Gd::from_object(
-            Self {
-                id,
-                emote_set_id,
-                owner_id,
-                format
-            }
-        )
+        return Gd::from_object(Self {
+            id,
+            emote_set_id,
+            owner_id,
+            format,
+        });
     }
 }

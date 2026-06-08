@@ -6,24 +6,16 @@ use crate::custom_resources::fragment::Fragment;
 #[class(no_init)]
 pub struct Message {
     #[var]
-    text : GString,
+    text: GString,
 
     #[var]
-    fragments : Array<Gd<Fragment>>
+    fragments: Array<Gd<Fragment>>,
 }
 
 #[godot_api]
 impl Message {
     #[func]
-    pub fn create(
-        text : GString,
-        fragments : Array<Gd<Fragment>>
-    ) -> Gd<Self> {
-        return Gd::from_object(
-            Self {
-                text, 
-                fragments
-            }
-        )
+    pub fn create(text: GString, fragments: Array<Gd<Fragment>>) -> Gd<Self> {
+        return Gd::from_object(Self { text, fragments });
     }
 }
