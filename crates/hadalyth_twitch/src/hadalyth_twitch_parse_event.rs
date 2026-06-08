@@ -1,4 +1,7 @@
 use godot::prelude::*;
+use twitch_api::eventsub::automod::message::AutomodHeldReason;
+
+use crate::hadalyth_twitch_resources::{Broadcaster, Fragment, Message, User};
 
 use super::hadalyth_twitch::HadalythTwitch;
 
@@ -14,6 +17,59 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        let broadcaster = Broadcaster::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot()
+                        );
+
+                        let held_at = payload.held_at.to_string();
+                        
+                        let message = payload.message;
+                        let message_text = message.text.to_godot();
+                        let mut message_fragments : Array<Gd<Fragment>> = array![];
+                        for fragment in message.fragments {
+                            let fragment = Fragment::create(
+                                fragment.text().to_godot(),
+                                None
+                            );
+                            message_fragments.push(&fragment);
+                        }
+                        let message = Message::create(
+                            message_text, 
+                            message_fragments
+                        );
+
+                        let message_id = payload.message_id.to_string();
+                        let reason = payload.reason;
+                        let reason = match reason {
+                            AutomodHeldReason::Automod(info) => {
+                                format!("{:?}", info)
+                            }
+                            AutomodHeldReason::BlockedTerm(info) => {
+                                format!("{:?}", info)
+                            }
+                            _ => {
+                                "AutomodHeldReason invalid".to_string()
+                            }
+                        };
+
+                        let user = User::create(
+                            payload.user_id.to_string().to_godot(),
+                            payload.user_login.to_string().to_godot(),
+                            payload.user_name.to_string().to_godot(),
+                        );
+
+
+                        self.signals().recv_automod_message_hold_v2().emit(
+                            &broadcaster,
+                            held_at,
+                            &message,
+                            message_id,
+                            reason,
+                            &user,
+                        )
                     }
                     _ => {}
                 }

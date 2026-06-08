@@ -409,6 +409,69 @@ impl HadalythTwitchEventSubs {
 
 #[derive(GodotClass)]
 #[class(no_init)]
+pub struct Broadcaster {
+    #[var]
+    user_id : GString,
+    
+    #[var]
+    user_login : GString,
+    
+    #[var]
+    user_name : GString
+}
+
+#[godot_api]
+impl Broadcaster {
+    #[func]
+    pub fn create(
+        user_id : GString,
+        user_login : GString,
+        user_name : GString,
+    ) -> Gd<Self> {
+        return Gd::from_object(
+            Self {
+                user_id,
+                user_login,
+                user_name
+            }
+        )
+    }
+}
+
+#[derive(GodotClass)]
+#[class(no_init)]
+pub struct User {
+    #[var]
+    user_id : GString,
+    
+    #[var]
+    user_login : GString,
+    
+    #[var]
+    user_name : GString
+}
+
+#[godot_api]
+impl User {
+    #[func]
+    pub fn create(
+        user_id : GString,
+        user_login : GString,
+        user_name : GString,
+    ) -> Gd<Self> {
+        return Gd::from_object(
+            Self {
+                user_id,
+                user_login,
+                user_name
+            }
+        )
+    }
+}
+
+
+#[derive(GodotClass)]
+#[class(no_init)]
 pub struct Emote {
     #[var]
     id : GString,
@@ -468,6 +531,32 @@ impl Fragment {
                 emote
             }
         );
+    }
+}
+
+#[derive(GodotClass)]
+#[class(no_init)]
+pub struct Message {
+    #[var]
+    text : GString,
+
+    #[var]
+    fragments : Array<Gd<Fragment>>
+}
+
+#[godot_api]
+impl Message {
+    #[func]
+    pub fn create(
+        text : GString,
+        fragments : Array<Gd<Fragment>>
+    ) -> Gd<Self> {
+        return Gd::from_object(
+            Self {
+                text, 
+                fragments
+            }
+        )
     }
 }
 

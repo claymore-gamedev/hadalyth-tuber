@@ -1,6 +1,6 @@
 use godot::prelude::*;
 
-use crate::hadalyth_twitch_resources::{HadalythTwitchScopes, HadalythTwitchEventSubs};
+use crate::hadalyth_twitch_resources::{Broadcaster, HadalythTwitchEventSubs, HadalythTwitchScopes, Message, User};
 use crate::hadalyth_twitch_enums::{TwitchEvent, SocketEvent};
 use crate::hadalyth_twitch_async::*;
 
@@ -137,75 +137,82 @@ impl HadalythTwitch {
 
     // START OF EVENTSUB SIGNALS
 
-    #[signal] fn recv_automod_message_hold_v2();
-    #[signal] fn recv_automod_message_update_v2();
-    #[signal] fn recv_automod_settings_update_v1();
-    #[signal] fn recv_automod_terms_update_v1();
-    #[signal] fn recv_channel_ad_break_begin_v1();
-    #[signal] fn recv_channel_bits_use_v1();
-    #[signal] fn recv_channel_chat_clear_v1();
-    #[signal] fn recv_channel_chat_clear_user_messages_v1();
-    #[signal] fn recv_channel_chat_message_v1();
-    #[signal] fn recv_channel_chat_message_delete_v1();
-    #[signal] fn recv_channel_chat_notification_v1();
-    #[signal] fn recv_channel_chat_user_message_hold_v1();
-    #[signal] fn recv_channel_chat_user_message_update_v1();
-    #[signal] fn recv_channel_chat_settings_update_v1();
-    #[signal] fn recv_channel_charity_campaign_donate_v1();
-    #[signal] fn recv_channel_charity_campaign_progress_v1();
-    #[signal] fn recv_channel_charity_campaign_start_v1();
-    #[signal] fn recv_channel_charity_campaign_stop_v1();
-    #[signal] fn recv_channel_update_v2();
-    #[signal] fn recv_channel_follow_v2();
-    #[signal] fn recv_channel_subscribe_v1();
-    #[signal] fn recv_channel_cheer_v1();
-    #[signal] fn recv_channel_ban_v1();
-    #[signal] fn recv_channel_unban_v1();
-    #[signal] fn recv_channel_unban_request_create_v1();
-    #[signal] fn recv_channel_unban_request_resolve_v1();
-    #[signal] fn recv_channel_vip_add_v1();
-    #[signal] fn recv_channel_vip_remove_v1();
-    #[signal] fn recv_channel_warning_acknowledge_v1();
-    #[signal] fn recv_channel_warning_send_v1();
-    #[signal] fn recv_channel_points_automatic_reward_redemption_add_v1();
-    #[signal] fn recv_channel_points_custom_reward_add_v1();
-    #[signal] fn recv_channel_points_custom_reward_update_v1();
-    #[signal] fn recv_channel_points_custom_reward_remove_v1();
-    #[signal] fn recv_channel_points_custom_reward_redemption_add_v1();
-    #[signal] fn recv_channel_points_custom_reward_redemption_update_v1();
-    #[signal] fn recv_channel_poll_begin_v1();
-    #[signal] fn recv_channel_poll_progress_v1();
-    #[signal] fn recv_channel_poll_end_v1();
-    #[signal] fn recv_channel_prediction_begin_v1();
-    #[signal] fn recv_channel_prediction_progress_v1();
-    #[signal] fn recv_channel_prediction_lock_v1();
-    #[signal] fn recv_channel_prediction_end_v1();
-    #[signal] fn recv_channel_raid_v1();
-    #[signal] fn recv_channel_shared_chat_begin_v1();
-    #[signal] fn recv_channel_shared_chat_end_v1();
-    #[signal] fn recv_channel_shared_chat_update_v1();
-    #[signal] fn recv_channel_shield_mode_begin_v1();
-    #[signal] fn recv_channel_shield_mode_end_v1();
-    #[signal] fn recv_channel_shoutout_create_v1();
-    #[signal] fn recv_channel_shoutout_receive_v1();
-    #[signal] fn recv_channel_suspicious_user_message_v1();
-    #[signal] fn recv_channel_suspicious_user_update_v1();
-    #[signal] fn recv_channel_goal_begin_v1();
-    #[signal] fn recv_channel_goal_progress_v1();
-    #[signal] fn recv_channel_goal_end_v1();
-    #[signal] fn recv_channel_hype_train_begin_v1();
-    #[signal] fn recv_channel_hype_train_progress_v1();
-    #[signal] fn recv_channel_hype_train_end_v1();
-    #[signal] fn recv_channel_moderate_v2();
-    #[signal] fn recv_channel_moderator_add_v1();
-    #[signal] fn recv_channel_moderator_remove_v1();
-    #[signal] fn recv_stream_online_v1();
-    #[signal] fn recv_stream_offline_v1();
-    #[signal] fn recv_user_update_v1();
-    #[signal] fn recv_user_whisper_message_v1();
-    #[signal] fn recv_channel_subscription_end_v1();
-    #[signal] fn recv_channel_subscription_gift_v1();
-    #[signal] fn recv_channel_subscription_message_v1();
+    #[signal] pub fn recv_automod_message_hold_v2(
+        broadcaster : Gd<Broadcaster>,
+        held_at     : String,
+        message     : Gd<Message>,
+        message_id  : String,
+        reason      : String,
+        user        : Gd<User>
+    );
+    #[signal] pub fn recv_automod_message_update_v2();
+    #[signal] pub fn recv_automod_settings_update_v1();
+    #[signal] pub fn recv_automod_terms_update_v1();
+    #[signal] pub fn recv_channel_ad_break_begin_v1();
+    #[signal] pub fn recv_channel_bits_use_v1();
+    #[signal] pub fn recv_channel_chat_clear_v1();
+    #[signal] pub fn recv_channel_chat_clear_user_messages_v1();
+    #[signal] pub fn recv_channel_chat_message_v1();
+    #[signal] pub fn recv_channel_chat_message_delete_v1();
+    #[signal] pub fn recv_channel_chat_notification_v1();
+    #[signal] pub fn recv_channel_chat_user_message_hold_v1();
+    #[signal] pub fn recv_channel_chat_user_message_update_v1();
+    #[signal] pub fn recv_channel_chat_settings_update_v1();
+    #[signal] pub fn recv_channel_charity_campaign_donate_v1();
+    #[signal] pub fn recv_channel_charity_campaign_progress_v1();
+    #[signal] pub fn recv_channel_charity_campaign_start_v1();
+    #[signal] pub fn recv_channel_charity_campaign_stop_v1();
+    #[signal] pub fn recv_channel_update_v2();
+    #[signal] pub fn recv_channel_follow_v2();
+    #[signal] pub fn recv_channel_subscribe_v1();
+    #[signal] pub fn recv_channel_cheer_v1();
+    #[signal] pub fn recv_channel_ban_v1();
+    #[signal] pub fn recv_channel_unban_v1();
+    #[signal] pub fn recv_channel_unban_request_create_v1();
+    #[signal] pub fn recv_channel_unban_request_resolve_v1();
+    #[signal] pub fn recv_channel_vip_add_v1();
+    #[signal] pub fn recv_channel_vip_remove_v1();
+    #[signal] pub fn recv_channel_warning_acknowledge_v1();
+    #[signal] pub fn recv_channel_warning_send_v1();
+    #[signal] pub fn recv_channel_points_automatic_reward_redemption_add_v1();
+    #[signal] pub fn recv_channel_points_custom_reward_add_v1();
+    #[signal] pub fn recv_channel_points_custom_reward_update_v1();
+    #[signal] pub fn recv_channel_points_custom_reward_remove_v1();
+    #[signal] pub fn recv_channel_points_custom_reward_redemption_add_v1();
+    #[signal] pub fn recv_channel_points_custom_reward_redemption_update_v1();
+    #[signal] pub fn recv_channel_poll_begin_v1();
+    #[signal] pub fn recv_channel_poll_progress_v1();
+    #[signal] pub fn recv_channel_poll_end_v1();
+    #[signal] pub fn recv_channel_prediction_begin_v1();
+    #[signal] pub fn recv_channel_prediction_progress_v1();
+    #[signal] pub fn recv_channel_prediction_lock_v1();
+    #[signal] pub fn recv_channel_prediction_end_v1();
+    #[signal] pub fn recv_channel_raid_v1();
+    #[signal] pub fn recv_channel_shared_chat_begin_v1();
+    #[signal] pub fn recv_channel_shared_chat_end_v1();
+    #[signal] pub fn recv_channel_shared_chat_update_v1();
+    #[signal] pub fn recv_channel_shield_mode_begin_v1();
+    #[signal] pub fn recv_channel_shield_mode_end_v1();
+    #[signal] pub fn recv_channel_shoutout_create_v1();
+    #[signal] pub fn recv_channel_shoutout_receive_v1();
+    #[signal] pub fn recv_channel_suspicious_user_message_v1();
+    #[signal] pub fn recv_channel_suspicious_user_update_v1();
+    #[signal] pub fn recv_channel_goal_begin_v1();
+    #[signal] pub fn recv_channel_goal_progress_v1();
+    #[signal] pub fn recv_channel_goal_end_v1();
+    #[signal] pub fn recv_channel_hype_train_begin_v1();
+    #[signal] pub fn recv_channel_hype_train_progress_v1();
+    #[signal] pub fn recv_channel_hype_train_end_v1();
+    #[signal] pub fn recv_channel_moderate_v2();
+    #[signal] pub fn recv_channel_moderator_add_v1();
+    #[signal] pub fn recv_channel_moderator_remove_v1();
+    #[signal] pub fn recv_stream_online_v1();
+    #[signal] pub fn recv_stream_offline_v1();
+    #[signal] pub fn recv_user_update_v1();
+    #[signal] pub fn recv_user_whisper_message_v1();
+    #[signal] pub fn recv_channel_subscription_end_v1();
+    #[signal] pub fn recv_channel_subscription_gift_v1();
+    #[signal] pub fn recv_channel_subscription_message_v1();
 
     // END OF EVENT SUB SIGNALS
 
