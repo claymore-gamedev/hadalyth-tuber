@@ -176,7 +176,9 @@ impl HadalythTwitch {
         user: Option<Gd<User>>,
     );
     #[signal]
-    pub fn recv_channel_chat_clear_v1();
+    pub fn recv_channel_chat_clear_v1(
+        broadcaster: Option<Gd<Broadcaster>>,
+    );
     #[signal]
     pub fn recv_channel_chat_clear_user_messages_v1();
     #[signal]
@@ -329,6 +331,7 @@ impl HadalythTwitch {
 
     #[func]
     pub fn _init_device_user_token(&mut self) {
+
         let Some(ref runtime) = self.runtime else {
             let tx = self.tx.clone();
             let _ = tx.send(TwitchEvent::DeviceUserTokenStatus(None));

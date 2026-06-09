@@ -224,6 +224,16 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+                        
+                        let broadcaster = Broadcaster::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot()
+                        );
+
+                        self.signals().recv_channel_chat_clear_v1().emit(
+                            &broadcaster
+                        );
                     }
                     _ => {}
                 }
