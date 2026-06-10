@@ -1,7 +1,8 @@
-# Hadalyth-Twitch
+# Hadalyth-Vipo
 
-This is my personal gdextension for interfacing with the twitch API from godot.  It just works.  It only supports the things I need for my games and probably won't ever support any additional functionality.
+These are my personal GDExtensions for interfacing with various services from Godot for making my streaming overlay.
 
+## Hadalyht-Twitch Example
 
 ```gdscript
 
