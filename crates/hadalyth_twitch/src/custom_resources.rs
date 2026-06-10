@@ -4,8 +4,8 @@ pub mod user;
 
 pub mod cheermote;
 pub mod emote;
-pub mod mention;
 pub mod fragment;
+pub mod mention;
 pub mod message;
 
 pub mod bits_custom_power_up;

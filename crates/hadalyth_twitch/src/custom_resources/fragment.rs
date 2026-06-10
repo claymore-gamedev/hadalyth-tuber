@@ -11,31 +11,29 @@ pub struct Fragment {
     text: GString,
 
     #[var]
-    cheermote : Option<Gd<Cheermote>>,
+    cheermote: Option<Gd<Cheermote>>,
 
     #[var]
     emote: Option<Gd<Emote>>,
 
     #[var]
-    mention : Option<Gd<Mention>>,
+    mention: Option<Gd<Mention>>,
 }
 
 #[godot_api]
 impl Fragment {
     #[func]
     pub fn create(
-        text: GString, 
-        cheermote : Option<Gd<Cheermote>>,
+        text: GString,
+        cheermote: Option<Gd<Cheermote>>,
         emote: Option<Gd<Emote>>,
-        mention : Option<Gd<Mention>>
+        mention: Option<Gd<Mention>>,
     ) -> Gd<Self> {
-        return Gd::from_object(
-            Self { 
-                text,
-                cheermote,
-                emote,
-                mention
-            }
-        );
+        return Gd::from_object(Self {
+            text,
+            cheermote,
+            emote,
+            mention,
+        });
     }
 }

@@ -23,56 +23,36 @@ impl ToGodotMessage for twitch_api::common::chat::Message {
                     let cheermote = Cheermote::create(
                         cheermote.prefix.to_godot(),
                         cheermote.bits as i64,
-                        cheermote.tier as i64
+                        cheermote.tier as i64,
                     );
-                    Fragment::create(
-                        text.to_godot(),
-                        Some(cheermote),
-                        None,
-                        None
-                    )
+                    Fragment::create(text.to_godot(), Some(cheermote), None, None)
                 }
-                twitch_api::common::chat::Fragment::Emote {text, emote} => {
-
-                    let format = emote.format.iter().map(|x|x.to_string().to_godot()).collect();
+                twitch_api::common::chat::Fragment::Emote { text, emote } => {
+                    let format = emote
+                        .format
+                        .iter()
+                        .map(|x| x.to_string().to_godot())
+                        .collect();
 
                     let emote = Emote::create(
                         emote.id.to_string().to_godot(),
                         emote.emote_set_id.to_string().to_godot(),
                         emote.owner_id.to_string().to_godot(),
-                        format
+                        format,
                     );
-                    Fragment::create(
-                        text.to_godot(),
-                        None,
-                        Some(emote),
-                        None
-                    )
+                    Fragment::create(text.to_godot(), None, Some(emote), None)
                 }
-                twitch_api::common::chat::Fragment::Mention {text, mention} => {
-                    
+                twitch_api::common::chat::Fragment::Mention { text, mention } => {
                     let user = User::create(
-                        mention.user_id.to_string().to_godot(), 
-                        mention.user_login.to_string().to_godot(), 
-                        mention.user_name.to_string().to_godot()
+                        mention.user_id.to_string().to_godot(),
+                        mention.user_login.to_string().to_godot(),
+                        mention.user_name.to_string().to_godot(),
                     );
-                    let mention = Mention::create(
-                        Some(user)
-                    );
-                    Fragment::create(
-                        text.to_godot(),
-                        None,
-                        None,
-                        Some(mention)
-                    )
+                    let mention = Mention::create(Some(user));
+                    Fragment::create(text.to_godot(), None, None, Some(mention))
                 }
-                twitch_api::common::chat::Fragment::Text{ text } => {
-                    Fragment::create(
-                        text.to_godot(),
-                        None,
-                        None,
-                        None
-                    )
+                twitch_api::common::chat::Fragment::Text { text } => {
+                    Fragment::create(text.to_godot(), None, None, None)
                 }
                 _ => {
                     // Note : This should be unreachable
@@ -94,41 +74,31 @@ impl ToGodotMessage for AutomodMessage {
         let mut message_fragments: Array<Gd<Fragment>> = array![];
         for fragment in self.fragments.as_slice() {
             let fragment = match fragment {
-                twitch_api::eventsub::automod::message::AutomodMessageFragment::Cheermote { text, cheermote } => {
+                twitch_api::eventsub::automod::message::AutomodMessageFragment::Cheermote {
+                    text,
+                    cheermote,
+                } => {
                     let cheermote = Cheermote::create(
                         cheermote.prefix.to_godot(),
                         cheermote.bits as i64,
-                        cheermote.tier as i64
+                        cheermote.tier as i64,
                     );
-                    Fragment::create(
-                        text.to_godot(),
-                        Some(cheermote),
-                        None,
-                        None
-                    )
+                    Fragment::create(text.to_godot(), Some(cheermote), None, None)
                 }
-                twitch_api::eventsub::automod::message::AutomodMessageFragment::Emote {text, emote} => {
-
+                twitch_api::eventsub::automod::message::AutomodMessageFragment::Emote {
+                    text,
+                    emote,
+                } => {
                     let emote = Emote::create(
                         emote.id.to_string().to_godot(),
                         emote.emote_set_id.to_string().to_godot(),
                         "".to_godot(),
-                        array![]
+                        array![],
                     );
-                    Fragment::create(
-                        text.to_godot(),
-                        None,
-                        Some(emote),
-                        None
-                    )
+                    Fragment::create(text.to_godot(), None, Some(emote), None)
                 }
-                twitch_api::eventsub::automod::message::AutomodMessageFragment::Text{ text } => {
-                    Fragment::create(
-                        text.to_godot(),
-                        None,
-                        None,
-                        None
-                    )
+                twitch_api::eventsub::automod::message::AutomodMessageFragment::Text { text } => {
+                    Fragment::create(text.to_godot(), None, None, None)
                 }
                 _ => {
                     // Note : This should be unreachable
@@ -141,5 +111,5 @@ impl ToGodotMessage for AutomodMessage {
         }
         let message = Message::create(message_text, message_fragments);
         return message;
-    }  
+    }
 }

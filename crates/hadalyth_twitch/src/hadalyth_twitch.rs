@@ -176,9 +176,7 @@ impl HadalythTwitch {
         user: Option<Gd<User>>,
     );
     #[signal]
-    pub fn recv_channel_chat_clear_v1(
-        broadcaster: Option<Gd<Broadcaster>>,
-    );
+    pub fn recv_channel_chat_clear_v1(broadcaster: Option<Gd<Broadcaster>>);
     #[signal]
     pub fn recv_channel_chat_clear_user_messages_v1();
     #[signal]
@@ -325,13 +323,12 @@ impl HadalythTwitch {
     }
 
     #[func]
-    fn set_client_id(&mut self, client_id : Option<Gd<HadalythTwitchClientId>>) {
+    fn set_client_id(&mut self, client_id: Option<Gd<HadalythTwitchClientId>>) {
         self.client_id = client_id;
     }
 
     #[func]
     pub fn _init_device_user_token(&mut self) {
-
         let Some(ref runtime) = self.runtime else {
             let tx = self.tx.clone();
             let _ = tx.send(TwitchEvent::DeviceUserTokenStatus(None));
@@ -354,7 +351,7 @@ impl HadalythTwitch {
             return;
         };
         let client_id = client_id.bind_mut().get_twitch_api_client_id();
-        
+
         let Some(ref mut scopes) = self.scopes else {
             godot_print!("Scopes not set");
             return;
@@ -364,11 +361,9 @@ impl HadalythTwitch {
         // Clone parameters
         let tx = self.tx.clone();
         let http_client = twitch.clone_client();
-        let token_builder = twitch_api::twitch_oauth2::DeviceUserTokenBuilder::new(
-            client_id, 
-            scopes
-        );
-        
+        let token_builder =
+            twitch_api::twitch_oauth2::DeviceUserTokenBuilder::new(client_id, scopes);
+
         // Spawn device user token auth
         runtime.spawn(init_device_user_token_async(tx, http_client, token_builder));
     }
@@ -447,24 +442,18 @@ impl HadalythTwitch {
         ));
     }
 
-
     #[func]
     fn init_twitch(&mut self) {
-
-        let this = self.to_gd(); 
-        godot::task::spawn(
-            async move {
-                init_twitch_async(this).await;
-            }
-        );
+        let this = self.to_gd();
+        godot::task::spawn(async move {
+            init_twitch_async(this).await;
+        });
     }
-
 
     #[func]
     fn _kill_helix_client(&mut self) {
         self.twitch = None;
     }
-
 
     #[func]
     fn _kill_twitch_socket(&mut self) {
@@ -474,7 +463,6 @@ impl HadalythTwitch {
         let _ = socket_tx.send(SocketEvent::SocketClose);
     }
 
-    
     #[func]
     fn kill_twitch(&mut self) {
         self._kill_helix_client();

@@ -1,5 +1,5 @@
-use godot::prelude::*;
 use futures_util::stream::StreamExt;
+use godot::prelude::*;
 use twitch_oauth2::TwitchToken;
 
 use crate::custom_config::hadalyth_twitch_eventsubs::TwitchApiEventSubs;
@@ -10,7 +10,7 @@ use crate::hadalyth_twitch::HadalythTwitch;
 const TWITCH_EVENTSUB_WEBSOCKET_URL: &str = "wss://eventsub.wss.twitch.tv/ws";
 
 // Handles calling and waiting for all the methods needed to init
-pub async fn init_twitch_async(mut this : Gd<HadalythTwitch>) {
+pub async fn init_twitch_async(mut this: Gd<HadalythTwitch>) {
     this.call_deferred("_init_device_user_token", &[]);
     this.signals().device_user_token_status().to_future().await;
 

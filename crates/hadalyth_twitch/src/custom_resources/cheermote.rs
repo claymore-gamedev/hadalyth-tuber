@@ -7,7 +7,7 @@ pub struct Cheermote {
     prefix: GString,
 
     #[var]
-    bits : i64,
+    bits: i64,
 
     #[var]
     tier: i64,
@@ -16,17 +16,7 @@ pub struct Cheermote {
 #[godot_api]
 impl Cheermote {
     #[func]
-    pub fn create(
-        prefix: GString, 
-        bits: i64, 
-        tier : i64
-    ) -> Gd<Self> {
-        return Gd::from_object(
-            Self { 
-                prefix, 
-                bits,
-                tier 
-            }
-        );
+    pub fn create(prefix: GString, bits: i64, tier: i64) -> Gd<Self> {
+        return Gd::from_object(Self { prefix, bits, tier });
     }
 }

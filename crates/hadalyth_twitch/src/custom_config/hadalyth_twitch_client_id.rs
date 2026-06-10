@@ -6,8 +6,7 @@ pub struct HadalythTwitchClientId {
     base: Base<Resource>,
 
     #[export]
-    pub client_id : GString,
-
+    pub client_id: GString,
 }
 
 impl HadalythTwitchClientId {
