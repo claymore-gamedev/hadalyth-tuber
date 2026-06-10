@@ -1,0 +1,21 @@
+[env]
+CMAKE_POLICY_DEFAULT_CMP0000 = "OLD"
+CMAKE_POLICY_VERSION_MINIMUM = "3.5"
+
+NDI_SDK_DIR = {value="api/ndi_sdk", relative=true, target = "x86_64-unknown-linux-gnu" }
+LD_LIBRARY_PATH = {value="api/ndi_sdk", relative=true, target = "x86_64-unknown-linux-gnu" }
+
+CFLAGS = { value = "-msse4.1 -mssse3", target = "x86_64-pc-windows-msvc" }
+CXXFLAGS = { value = "-msse4.1 -mssse3", target = "x86_64-pc-windows-msvc" }
+
+[target.x86_64-pc-windows-msvc]
+linker = "lld"
+rustflags = [
+  "-Lnative=~/.xwin/crt/lib/x86_64",
+  "-Lnative=~/.xwin/sdk/lib/um/x86_64",
+  "-Lnative=~/.xwin/sdk/lib/ucrt/x86_64",
+]
+
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["-C", "link-arg=-Wl,-rpath,$ORIGIN"]
+
