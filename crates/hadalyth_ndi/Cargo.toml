@@ -1,0 +1,11 @@
+[package]
+name = "hadalyth-ndi"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+godot = {workspace = true}
+grafton-ndi = {workspace = true}
