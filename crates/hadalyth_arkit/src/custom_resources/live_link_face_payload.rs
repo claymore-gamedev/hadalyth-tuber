@@ -1,3 +1,8 @@
+
+//!
+//! Credit to https://github.com/JimWest/PyLiveLinkFace for documenting to packet format
+//! 
+
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use std::{
     io::{Cursor, Read},
@@ -55,23 +60,19 @@ impl LiveLinkFacePayload {
     pub fn from_raw(bytes: &[u8]) -> Result<Self, LiveLinkFacePayloadParseError> {
         let mut cursor = Cursor::new(bytes);
 
-        // version = struct.unpack('<i', bytes_data[0:4])[0]
         let version = cursor.read_i32::<LittleEndian>()?;
 
-        // uuid = bytes_data[4:41].decode("utf-8")
         let mut uuid_bytes = [0u8; 37];
         cursor.read_exact(&mut uuid_bytes)?;
 
         let uuid = String::from_utf8(uuid_bytes.to_vec())?;
 
-        // name_length = struct.unpack('!i', bytes_data[41:45])[0]
         let name_length = cursor.read_i32::<BigEndian>()?;
 
         if name_length < 0 {
             return Err(LiveLinkFacePayloadParseError::Error());
         }
 
-        // name = bytes_data[45:name_end_pos].decode("utf-8")
         let mut name_bytes = vec![0u8; name_length as usize];
         cursor.read_exact(&mut name_bytes)?;
 
@@ -84,7 +85,6 @@ impl LiveLinkFacePayload {
             return Ok(LiveLinkFacePayload::default());
         }
 
-        // struct.unpack("!if2ib", ...)
         let frame_number = cursor.read_i32::<BigEndian>()?;
 
         let sub_frame = cursor.read_f32::<BigEndian>()?;
