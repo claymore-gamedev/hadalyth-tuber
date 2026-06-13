@@ -1,7 +1,6 @@
-
 //!
 //! Credit to https://github.com/JimWest/PyLiveLinkFace for documenting to packet format
-//! 
+//!
 
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use std::{
