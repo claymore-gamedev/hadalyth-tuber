@@ -14,6 +14,10 @@ use crate::custom_resources::user::User;
 
 use crate::hadalyth_twitch_async::*;
 
+const REFRESH_TOKEN_PATH : &str = "user://refresh_token.cfg";
+const REFRESH_CFG_SECTION_KEY : &str = "REFRESH_TOKEN";
+const REFRESH_CFG_REFRESH_TOKEN_KEY : &str = "refresh_token";
+
 #[derive(GodotClass)]
 #[class(base=Node)]
 pub struct HadalythTwitch {
@@ -83,6 +87,11 @@ impl INode for HadalythTwitch {
             return;
         };
         self.runtime = Some(runtime);
+
+
+        let twitch: twitch_api::helix::HelixClient<'static, reqwest::Client> = twitch_api::helix::HelixClient::default();
+        self.twitch = Some(twitch);
+
     }
 
     fn process(&mut self, _delta: f64) {
@@ -91,6 +100,13 @@ impl INode for HadalythTwitch {
             match event {
                 TwitchEvent::Debug(message) => {
                     godot_print!("TwitchEvent::Debug: {}", message);
+                }
+
+                TwitchEvent::RefreshTokenStatus(token) => {
+                    godot_print!("TwitchEvent::RefreshTokenStatus");
+                    self.token = token;
+                    let status = self.token.is_some();
+                    self.signals().refresh_token_status().emit(status);
                 }
 
                 TwitchEvent::DeviceUserTokenRequest(verification_uri, expires_in) => {
@@ -107,6 +123,17 @@ impl INode for HadalythTwitch {
                     self.token = token;
                     let status = self.token.is_some();
                     self.signals().device_user_token_status().emit(status);
+                }
+
+                TwitchEvent::RefreshTokenUpdate(refresh_token) => {
+                    match refresh_token {
+                        Some(refresh_token) => {
+                            let mut refresh_cfg = godot::classes::ConfigFile::new_gd();
+                            refresh_cfg.set_value(REFRESH_CFG_SECTION_KEY, REFRESH_CFG_REFRESH_TOKEN_KEY, &refresh_token.as_str().to_godot().to_variant());
+                            refresh_cfg.save(REFRESH_TOKEN_PATH);
+                        }
+                        None => {}
+                    }
                 }
 
                 TwitchEvent::TwitchSocketStatus(session_id) => {
@@ -305,6 +332,8 @@ impl HadalythTwitch {
     // END OF EVENT SUB SIGNALS
 
     #[signal]
+    pub fn refresh_token_status(status: bool);
+    #[signal]
     pub fn device_user_token_status(status: bool);
     #[signal]
     pub fn twitch_socket_status(status: bool);
@@ -328,6 +357,58 @@ impl HadalythTwitch {
     }
 
     #[func]
+    pub fn _init_refresh_user_token(&mut self) {
+        let Some(ref runtime) = self.runtime else {
+            let tx = self.tx.clone();
+            let _ = tx.send(TwitchEvent::RefreshTokenStatus(None));
+            godot_print!("Tokio runtime not initialized");
+            return;
+        };
+
+        let Some(ref twitch) = self.twitch else {
+            let tx = self.tx.clone();
+            let _ = tx.send(TwitchEvent::RefreshTokenStatus(None));
+            godot_print!("Failed to initialize helix client");
+            return;
+        };
+
+        let Some(ref mut client_id) = self.client_id else {
+            godot_print!("Client ID not set");
+            let tx = self.tx.clone();
+            let _ = tx.send(TwitchEvent::RefreshTokenStatus(None));
+            return;
+        };
+        let client_id = client_id.bind_mut().get_twitch_api_client_id();
+
+        // Try load refresh token
+        if !godot::classes::FileAccess::file_exists(REFRESH_TOKEN_PATH) {
+            let tx = self.tx.clone();
+            let _ = tx.send(TwitchEvent::RefreshTokenStatus(None));
+            return;
+        };
+        let mut refresh_token_cfg = godot::classes::ConfigFile::new_gd();
+        refresh_token_cfg.load(REFRESH_TOKEN_PATH);
+
+        let refresh_token = refresh_token_cfg.get_value(REFRESH_CFG_SECTION_KEY, REFRESH_CFG_REFRESH_TOKEN_KEY);
+        let refresh_token = String::try_from_variant(&refresh_token);
+        let Ok(refresh_token) = refresh_token else {
+            let tx = self.tx.clone();
+            let _ = tx.send(TwitchEvent::RefreshTokenStatus(None));
+            return;    
+        };
+
+        // Clone parameters
+        let tx = self.tx.clone();
+        let http_client = twitch.clone_client();
+        let refresh_token = twitch_api::twitch_oauth2::RefreshToken::new(refresh_token);
+
+
+        // Spawn device user token auth
+        runtime.spawn(init_refresh_user_token_async(tx, http_client, client_id, refresh_token));
+        
+    }
+
+    #[func]
     pub fn _init_device_user_token(&mut self) {
         let Some(ref runtime) = self.runtime else {
             let tx = self.tx.clone();
@@ -336,9 +417,6 @@ impl HadalythTwitch {
             return;
         };
 
-        let twitch: twitch_api::helix::HelixClient<'static, reqwest::Client> =
-            twitch_api::helix::HelixClient::default();
-        self.twitch = Some(twitch);
         let Some(ref twitch) = self.twitch else {
             let tx = self.tx.clone();
             let _ = tx.send(TwitchEvent::DeviceUserTokenStatus(None));
