@@ -11,12 +11,11 @@ const TWITCH_EVENTSUB_WEBSOCKET_URL: &str = "wss://eventsub.wss.twitch.tv/ws";
 
 // Handles calling and waiting for all the methods needed to init
 pub async fn init_twitch_async(mut this: Gd<HadalythTwitch>) {
-
     this.call_deferred("_init_refresh_user_token", &[]);
     let result = this.signals().refresh_token_status().to_future().await;
 
     // We need to know if the token is good or bad at this point
-    // so we can device if we want to continue with attempting to do the device code flow.  
+    // so we can device if we want to continue with attempting to do the device code flow.
     // If we succeeded we don't need to continue
     if !result.0 {
         this.call_deferred("_init_device_user_token", &[]);
@@ -33,10 +32,16 @@ pub async fn init_twitch_async(mut this: Gd<HadalythTwitch>) {
 pub async fn init_refresh_user_token_async(
     tx: std::sync::mpsc::Sender<TwitchEvent>,
     http_client: reqwest::Client,
-    client_id : twitch_api::twitch_oauth2::ClientId,
+    client_id: twitch_api::twitch_oauth2::ClientId,
     refresh_token: twitch_api::twitch_oauth2::RefreshToken,
 ) {
-    let user_token_response = twitch_api::twitch_oauth2::UserToken::from_refresh_token(&http_client, refresh_token, client_id, None).await;
+    let user_token_response = twitch_api::twitch_oauth2::UserToken::from_refresh_token(
+        &http_client,
+        refresh_token,
+        client_id,
+        None,
+    )
+    .await;
     let Ok(user_token_response) = user_token_response else {
         let _ = tx.send(TwitchEvent::RefreshTokenStatus(None));
         let error = format!(
@@ -44,12 +49,10 @@ pub async fn init_refresh_user_token_async(
             user_token_response.unwrap_err()
         );
         let _ = tx.send(TwitchEvent::Debug(error));
-        return;        
+        return;
     };
 
-    let _ = tx.send(TwitchEvent::RefreshTokenStatus(Some(
-        user_token_response,
-    )));
+    let _ = tx.send(TwitchEvent::RefreshTokenStatus(Some(user_token_response)));
 }
 
 // Initializes the device code flow token authorization process
@@ -154,14 +157,15 @@ pub async fn init_twitch_socket_async(
 
                 let _ = token.refresh_token(&http_client).await;
                 let refresh_token = &token.refresh_token;
-                match refresh_token{
+                match refresh_token {
                     Some(refresh_token) => {
                         // We need to save this in the main thread to our cfg file now.
-                        let _ = tx.send(TwitchEvent::RefreshTokenUpdate(Some(refresh_token.as_str().to_string())));
+                        let _ = tx.send(TwitchEvent::RefreshTokenUpdate(Some(
+                            refresh_token.as_str().to_string(),
+                        )));
                     }
                     None => {}
                 }
-
             }
             tokio_tungstenite::tungstenite::Message::Binary(_) => {
 

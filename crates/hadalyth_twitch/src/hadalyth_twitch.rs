@@ -6,17 +6,21 @@ use crate::custom_config::hadalyth_twitch_scopes::HadalythTwitchScopes;
 use crate::custom_events::socket_event::SocketEvent;
 use crate::custom_events::twitch_event::TwitchEvent;
 
+use crate::custom_resources::badge::Badge;
 use crate::custom_resources::bits_custom_power_up::BitsCustomPowerUp;
 use crate::custom_resources::broadcaster::Broadcaster;
+use crate::custom_resources::chatter::Chatter;
 use crate::custom_resources::message::Message;
 use crate::custom_resources::moderator::Moderator;
+use crate::custom_resources::reply::Reply;
+use crate::custom_resources::source::Source;
 use crate::custom_resources::user::User;
 
 use crate::hadalyth_twitch_async::*;
 
-const REFRESH_TOKEN_PATH : &str = "user://refresh_token.cfg";
-const REFRESH_CFG_SECTION_KEY : &str = "REFRESH_TOKEN";
-const REFRESH_CFG_REFRESH_TOKEN_KEY : &str = "refresh_token";
+const REFRESH_TOKEN_PATH: &str = "user://refresh_token.cfg";
+const REFRESH_CFG_SECTION_KEY: &str = "REFRESH_TOKEN";
+const REFRESH_CFG_REFRESH_TOKEN_KEY: &str = "refresh_token";
 
 #[derive(GodotClass)]
 #[class(base=Node)]
@@ -88,10 +92,9 @@ impl INode for HadalythTwitch {
         };
         self.runtime = Some(runtime);
 
-
-        let twitch: twitch_api::helix::HelixClient<'static, reqwest::Client> = twitch_api::helix::HelixClient::default();
+        let twitch: twitch_api::helix::HelixClient<'static, reqwest::Client> =
+            twitch_api::helix::HelixClient::default();
         self.twitch = Some(twitch);
-
     }
 
     fn process(&mut self, _delta: f64) {
@@ -125,16 +128,18 @@ impl INode for HadalythTwitch {
                     self.signals().device_user_token_status().emit(status);
                 }
 
-                TwitchEvent::RefreshTokenUpdate(refresh_token) => {
-                    match refresh_token {
-                        Some(refresh_token) => {
-                            let mut refresh_cfg = godot::classes::ConfigFile::new_gd();
-                            refresh_cfg.set_value(REFRESH_CFG_SECTION_KEY, REFRESH_CFG_REFRESH_TOKEN_KEY, &refresh_token.as_str().to_godot().to_variant());
-                            refresh_cfg.save(REFRESH_TOKEN_PATH);
-                        }
-                        None => {}
+                TwitchEvent::RefreshTokenUpdate(refresh_token) => match refresh_token {
+                    Some(refresh_token) => {
+                        let mut refresh_cfg = godot::classes::ConfigFile::new_gd();
+                        refresh_cfg.set_value(
+                            REFRESH_CFG_SECTION_KEY,
+                            REFRESH_CFG_REFRESH_TOKEN_KEY,
+                            &refresh_token.as_str().to_godot().to_variant(),
+                        );
+                        refresh_cfg.save(REFRESH_TOKEN_PATH);
                     }
-                }
+                    None => {}
+                },
 
                 TwitchEvent::TwitchSocketStatus(session_id) => {
                     godot_print!("TwitchEvent::TwitchSocketStatus: {:?}", session_id);
@@ -164,6 +169,21 @@ impl HadalythTwitch {
     pub const BITS_TYPE_POWER_UP: i64 = 1;
     #[constant]
     pub const BITS_TYPE_CUSTOM_POWER_UP: i64 = 2;
+
+    // MESSAGE TYPE CONSTS
+
+    #[constant]
+    pub const MESSAGE_TYPE_TEST: i64 = 0;
+    #[constant]
+    pub const MESSAGE_TYPE_CHANNEL_POINTS_HIGHLIGHTED: i64 = 1;
+    #[constant]
+    pub const MESSAGE_TYPE_CHANNEL_POINTS_SUB_ONLY: i64 = 2;
+    #[constant]
+    pub const MESSAGE_TYPE_USER_INTRO: i64 = 3;
+    #[constant]
+    pub const MESSAGE_TYPE_POWER_UPS_GIGANTIFIED_EMOTE: i64 = 4;
+    #[constant]
+    pub const MESSAGE_TYPE_POWER_UPS_MESSAGE_EFFECT: i64 = 5;
 
     // START OF EVENTSUB SIGNALS
 
@@ -205,9 +225,26 @@ impl HadalythTwitch {
     #[signal]
     pub fn recv_channel_chat_clear_v1(broadcaster: Option<Gd<Broadcaster>>);
     #[signal]
-    pub fn recv_channel_chat_clear_user_messages_v1();
+    pub fn recv_channel_chat_clear_user_messages_v1(
+        broadcaster: Option<Gd<Broadcaster>>,
+        user: Option<Gd<User>>,
+    );
     #[signal]
-    pub fn recv_channel_chat_message_v1();
+    pub fn recv_channel_chat_message_v1(
+        badges: Array<Gd<Badge>>,
+        broadcaster: Option<Gd<Broadcaster>>,
+        channel_points_animation_id: String,
+        channel_points_custom_reward_id: String,
+        chatter: Option<Gd<Chatter>>,
+        cheer: i64,
+        color: String,
+        is_source_only: bool,
+        message: Option<Gd<Message>>,
+        message_id: String,
+        message_type: i64,
+        reply: Option<Gd<Reply>>,
+        source: Option<Gd<Source>>,
+    );
     #[signal]
     pub fn recv_channel_chat_message_delete_v1();
     #[signal]
@@ -389,12 +426,13 @@ impl HadalythTwitch {
         let mut refresh_token_cfg = godot::classes::ConfigFile::new_gd();
         refresh_token_cfg.load(REFRESH_TOKEN_PATH);
 
-        let refresh_token = refresh_token_cfg.get_value(REFRESH_CFG_SECTION_KEY, REFRESH_CFG_REFRESH_TOKEN_KEY);
+        let refresh_token =
+            refresh_token_cfg.get_value(REFRESH_CFG_SECTION_KEY, REFRESH_CFG_REFRESH_TOKEN_KEY);
         let refresh_token = String::try_from_variant(&refresh_token);
         let Ok(refresh_token) = refresh_token else {
             let tx = self.tx.clone();
             let _ = tx.send(TwitchEvent::RefreshTokenStatus(None));
-            return;    
+            return;
         };
 
         // Clone parameters
@@ -402,10 +440,13 @@ impl HadalythTwitch {
         let http_client = twitch.clone_client();
         let refresh_token = twitch_api::twitch_oauth2::RefreshToken::new(refresh_token);
 
-
         // Spawn device user token auth
-        runtime.spawn(init_refresh_user_token_async(tx, http_client, client_id, refresh_token));
-        
+        runtime.spawn(init_refresh_user_token_async(
+            tx,
+            http_client,
+            client_id,
+            refresh_token,
+        ));
     }
 
     #[func]

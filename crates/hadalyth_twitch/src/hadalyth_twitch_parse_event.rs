@@ -1,9 +1,13 @@
 use godot::prelude::*;
 
+use crate::custom_resources::badge::Badge;
 use crate::custom_resources::bits_custom_power_up::BitsCustomPowerUp;
 use crate::custom_resources::broadcaster::Broadcaster;
+use crate::custom_resources::chatter::Chatter;
 use crate::custom_resources::message::Message;
 use crate::custom_resources::moderator::Moderator;
+use crate::custom_resources::reply::Reply;
+use crate::custom_resources::source::Source;
 use crate::custom_resources::user::User;
 
 use crate::custom_traits::to_godot_message::ToGodotMessage;
@@ -248,6 +252,22 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        let broadcaster = Broadcaster::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot(),
+                        );
+
+                        let user = User::create(
+                            payload.target_user_id.to_string().to_godot(),
+                            payload.target_user_login.to_string().to_godot(),
+                            payload.target_user_name.to_string().to_godot(),
+                        );
+
+                        self.signals()
+                            .recv_channel_chat_clear_user_messages_v1()
+                            .emit(&broadcaster, &user);
                     }
                     _ => {}
                 }
@@ -262,6 +282,140 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        let twitch_api_badges = payload.badges;
+                        let mut badges: Array<Gd<Badge>> = array![];
+                        for twitch_api_badge in twitch_api_badges.iter() {
+                            let badge = Badge::create(
+                                twitch_api_badge.set_id.to_string().to_godot(),
+                                twitch_api_badge.id.to_string().to_godot(),
+                                twitch_api_badge.info.to_string().to_godot(),
+                            );
+                            badges.push(&badge);
+                        }
+
+                        let broadcaster = Broadcaster::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot(),
+                        );
+
+                        let channel_points_animation_id = payload.channel_points_animation_id;
+                        let channel_points_animation_id = match channel_points_animation_id {
+                            Some(channel_points_animation_id) => channel_points_animation_id,
+                            None => "".to_string(),
+                        };
+
+                        let channel_points_custom_reward_id =
+                            payload.channel_points_custom_reward_id;
+                        let channel_points_custom_reward_id = match channel_points_custom_reward_id
+                        {
+                            Some(channel_points_custom_reward_id) => {
+                                channel_points_custom_reward_id.to_string()
+                            }
+                            None => "".to_string(),
+                        };
+
+                        let chatter = Chatter::create(
+                            payload.chatter_user_id.to_string().to_godot(),
+                            payload.chatter_user_login.to_string().to_godot(),
+                            payload.chatter_user_name.to_string().to_godot(),
+                        );
+
+                        let cheer = payload.cheer;
+                        let cheer = match cheer {
+                            Some(cheer) => cheer.bits,
+                            None => 0,
+                        } as i64;
+
+                        let color = payload.color.to_string();
+
+                        let is_source_only = payload.is_source_only;
+                        let is_source_only = match is_source_only {
+                            Some(is_source_only) => is_source_only,
+                            None => false,
+                        };
+
+                        let message = payload.message.to_godot_message();
+
+                        let message_id = payload.message_id.to_string();
+
+                        let message_type = payload.message_type as i64;
+
+                        let reply = payload.reply;
+                        let reply = match reply {
+                            Some(reply) => Some(Reply::create(
+                                reply.parent_message_id.to_string().to_godot(),
+                                reply.parent_message_body.to_string().to_godot(),
+                                reply.parent_user_id.to_string().to_godot(),
+                                reply.parent_user_name.to_string().to_godot(),
+                                reply.parent_user_login.to_string().to_godot(),
+                                reply.thread_message_id.to_string().to_godot(),
+                                reply.thread_user_id.to_string().to_godot(),
+                                reply.thread_user_name.to_string().to_godot(),
+                                reply.thread_user_login.to_string().to_godot(),
+                            )),
+                            None => None,
+                        };
+
+                        let twitch_api_badges = payload.source_badges;
+                        let mut source_badges: Array<Gd<Badge>> = array![];
+                        for twitch_api_badge in twitch_api_badges.iter() {
+                            let badge = Badge::create(
+                                twitch_api_badge.set_id.to_string().to_godot(),
+                                twitch_api_badge.id.to_string().to_godot(),
+                                twitch_api_badge.info.to_string().to_godot(),
+                            );
+                            source_badges.push(&badge);
+                        }
+
+                        let source_broadcaster = match (
+                            payload.source_broadcaster_user_id,
+                            payload.source_broadcaster_user_login,
+                            payload.source_broadcaster_user_name,
+                        ) {
+                            (
+                                Some(source_broadcaster_user_id),
+                                Some(source_broadcaster_user_login),
+                                Some(source_broadcaster_user_name),
+                            ) => Some(Broadcaster::create(
+                                source_broadcaster_user_id.to_string().to_godot(),
+                                source_broadcaster_user_login.to_string().to_godot(),
+                                source_broadcaster_user_name.to_string().to_godot(),
+                            )),
+                            _ => None,
+                        };
+
+                        let source_message_id = payload.source_message_id;
+                        let source_message_id = match source_message_id {
+                            Some(source_message_id) => source_message_id.to_string(),
+                            None => "".to_string(),
+                        };
+
+                        let source = match source_broadcaster {
+                            Some(source_broadcaster) => Some(Source::create(
+                                source_badges,
+                                Some(source_broadcaster),
+                                source_message_id.to_godot(),
+                            )),
+                            None => None,
+                        };
+
+                        self.signals().recv_channel_chat_message_v1().emit(
+                            &badges,
+                            &broadcaster,
+                            channel_points_animation_id,
+                            channel_points_custom_reward_id,
+                            &chatter,
+                            cheer,
+                            color,
+                            is_source_only,
+                            &message,
+                            message_id,
+                            message_type,
+                            reply.as_ref(),
+                            source.as_ref(),
+                        )
                     }
                     _ => {}
                 }

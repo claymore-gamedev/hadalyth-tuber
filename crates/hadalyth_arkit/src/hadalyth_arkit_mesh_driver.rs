@@ -59,16 +59,15 @@ const BLEND_SHAPE_NAMES: [&str; 52] = [
     "noseSneerRight",
     "tongueOut",
 ];
-    // "headYaw",
-    // "headPitch",
-    // "headRoll",
-    // "leftEyeYaw",
-    // "leftEyePitch",
-    // "leftEyeRoll",
-    // "rightEyeYaw",
-    // "rightEyePitch",
-    // "rightEyeRoll",
-
+// "headYaw",
+// "headPitch",
+// "headRoll",
+// "leftEyeYaw",
+// "leftEyePitch",
+// "leftEyeRoll",
+// "rightEyeYaw",
+// "rightEyePitch",
+// "rightEyeRoll",
 
 #[derive(GodotClass)]
 #[class(base=Node)]
@@ -80,15 +79,15 @@ struct HadalythArkitMeshDriver {
     blend_shape_lerp_speed: f32,
 
     #[export]
-    blend_shape_jaw_open_mult : f32,
+    blend_shape_jaw_open_mult: f32,
 
     blend_shape_indexes: Vec<i32>,
 
-    blend_shape_index_jaw_open : i32,
+    blend_shape_index_jaw_open: i32,
 
     #[var]
     target_blend_shapes: Gd<LiveLinkFaceBlendShapes>,
-    
+
     #[var]
     current_blend_shapes: Gd<LiveLinkFaceBlendShapes>,
 
@@ -187,32 +186,58 @@ impl INode for HadalythArkitMeshDriver {
         }
 
         let head_yaw = self.current_blend_shapes.bind_mut().head_yaw;
-        self.current_blend_shapes.bind_mut().head_yaw = head_yaw.lerp_angle(self.target_blend_shapes.bind().head_yaw, delta * self.blend_shape_lerp_speed);
+        self.current_blend_shapes.bind_mut().head_yaw = head_yaw.lerp_angle(
+            self.target_blend_shapes.bind().head_yaw,
+            delta * self.blend_shape_lerp_speed,
+        );
 
         let head_pitch = self.current_blend_shapes.bind_mut().head_pitch;
-        self.current_blend_shapes.bind_mut().head_pitch = head_pitch.lerp_angle(self.target_blend_shapes.bind().head_pitch, delta * self.blend_shape_lerp_speed);
-        
-        let head_roll = self.current_blend_shapes.bind_mut().head_roll;
-        self.current_blend_shapes.bind_mut().head_roll = head_roll.lerp_angle(self.target_blend_shapes.bind().head_roll, delta * self.blend_shape_lerp_speed);
-        
-        let left_eye_yaw = self.current_blend_shapes.bind_mut().left_eye_yaw;
-        self.current_blend_shapes.bind_mut().left_eye_yaw = left_eye_yaw.lerp_angle(self.target_blend_shapes.bind().left_eye_yaw, delta * self.blend_shape_lerp_speed);
-        
-        let left_eye_pitch = self.current_blend_shapes.bind_mut().left_eye_pitch;
-        self.current_blend_shapes.bind_mut().left_eye_pitch = left_eye_pitch.lerp_angle(self.target_blend_shapes.bind().left_eye_pitch, delta * self.blend_shape_lerp_speed);
-        
-        let left_eye_roll = self.current_blend_shapes.bind_mut().left_eye_roll;
-        self.current_blend_shapes.bind_mut().left_eye_roll = left_eye_roll.lerp_angle(self.target_blend_shapes.bind().left_eye_roll, delta * self.blend_shape_lerp_speed);
-        
-        let right_eye_yaw = self.current_blend_shapes.bind_mut().right_eye_yaw;
-        self.current_blend_shapes.bind_mut().right_eye_yaw = right_eye_yaw.lerp_angle(self.target_blend_shapes.bind().right_eye_yaw, delta * self.blend_shape_lerp_speed);
-        
-        let right_eye_pitch = self.current_blend_shapes.bind_mut().right_eye_pitch;
-        self.current_blend_shapes.bind_mut().right_eye_pitch = right_eye_pitch.lerp_angle(self.target_blend_shapes.bind().right_eye_pitch, delta * self.blend_shape_lerp_speed);
-        
-        let right_eye_roll = self.current_blend_shapes.bind_mut().right_eye_roll;
-        self.current_blend_shapes.bind_mut().right_eye_roll = right_eye_roll.lerp_angle(self.target_blend_shapes.bind().right_eye_roll, delta * self.blend_shape_lerp_speed);
+        self.current_blend_shapes.bind_mut().head_pitch = head_pitch.lerp_angle(
+            self.target_blend_shapes.bind().head_pitch,
+            delta * self.blend_shape_lerp_speed,
+        );
 
+        let head_roll = self.current_blend_shapes.bind_mut().head_roll;
+        self.current_blend_shapes.bind_mut().head_roll = head_roll.lerp_angle(
+            self.target_blend_shapes.bind().head_roll,
+            delta * self.blend_shape_lerp_speed,
+        );
+
+        let left_eye_yaw = self.current_blend_shapes.bind_mut().left_eye_yaw;
+        self.current_blend_shapes.bind_mut().left_eye_yaw = left_eye_yaw.lerp_angle(
+            self.target_blend_shapes.bind().left_eye_yaw,
+            delta * self.blend_shape_lerp_speed,
+        );
+
+        let left_eye_pitch = self.current_blend_shapes.bind_mut().left_eye_pitch;
+        self.current_blend_shapes.bind_mut().left_eye_pitch = left_eye_pitch.lerp_angle(
+            self.target_blend_shapes.bind().left_eye_pitch,
+            delta * self.blend_shape_lerp_speed,
+        );
+
+        let left_eye_roll = self.current_blend_shapes.bind_mut().left_eye_roll;
+        self.current_blend_shapes.bind_mut().left_eye_roll = left_eye_roll.lerp_angle(
+            self.target_blend_shapes.bind().left_eye_roll,
+            delta * self.blend_shape_lerp_speed,
+        );
+
+        let right_eye_yaw = self.current_blend_shapes.bind_mut().right_eye_yaw;
+        self.current_blend_shapes.bind_mut().right_eye_yaw = right_eye_yaw.lerp_angle(
+            self.target_blend_shapes.bind().right_eye_yaw,
+            delta * self.blend_shape_lerp_speed,
+        );
+
+        let right_eye_pitch = self.current_blend_shapes.bind_mut().right_eye_pitch;
+        self.current_blend_shapes.bind_mut().right_eye_pitch = right_eye_pitch.lerp_angle(
+            self.target_blend_shapes.bind().right_eye_pitch,
+            delta * self.blend_shape_lerp_speed,
+        );
+
+        let right_eye_roll = self.current_blend_shapes.bind_mut().right_eye_roll;
+        self.current_blend_shapes.bind_mut().right_eye_roll = right_eye_roll.lerp_angle(
+            self.target_blend_shapes.bind().right_eye_roll,
+            delta * self.blend_shape_lerp_speed,
+        );
     }
 }
 
