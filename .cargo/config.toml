@@ -2,8 +2,8 @@
 CMAKE_POLICY_DEFAULT_CMP0000 = "OLD"
 CMAKE_POLICY_VERSION_MINIMUM = "3.5"
 
-NDI_SDK_DIR = {value="api/ndi_sdk", relative=true, target = "x86_64-unknown-linux-gnu" }
-LD_LIBRARY_PATH = {value="api/ndi_sdk", relative=true, target = "x86_64-unknown-linux-gnu" }
+NDI_SDK_DIR = {value="api/ndi_sdk", relative=true}
+LD_LIBRARY_PATH = {value="api/ndi_sdk", relative=true}
 
 CFLAGS = { value = "-msse4.1 -mssse3", target = "x86_64-pc-windows-msvc" }
 CXXFLAGS = { value = "-msse4.1 -mssse3", target = "x86_64-pc-windows-msvc" }

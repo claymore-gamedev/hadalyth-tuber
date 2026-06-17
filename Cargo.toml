@@ -15,7 +15,8 @@ serde_derive = "1.0.228"
 reqwest = "0.13.1"
 twitch_api = "0.8.0"
 twitch_oauth2 = "0.17.1"
-grafton-ndi = "0.13.0"
+grafton-ndi = {version = "1.0.0", default-features = false}
+hadalyth-arkit = {path = "./crates/hadalyth_arkit"}
 hadalyth-twitch = {path = "./crates/hadalyth_twitch"}
 hadalyth-ndi = {path = "./crates/hadalyth_ndi"}
 
