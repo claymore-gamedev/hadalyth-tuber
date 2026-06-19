@@ -2,12 +2,10 @@ use godot::prelude::*;
 
 use crate::custom_resources::badge::Badge;
 use crate::custom_resources::bits_custom_power_up::BitsCustomPowerUp;
-use crate::custom_resources::broadcaster::Broadcaster;
-use crate::custom_resources::chatter::Chatter;
 use crate::custom_resources::message::Message;
-use crate::custom_resources::moderator::Moderator;
 use crate::custom_resources::reply::Reply;
 use crate::custom_resources::source::Source;
+use crate::custom_resources::timestamp::Timestamp;
 use crate::custom_resources::user::User;
 
 use crate::custom_traits::to_godot_message::ToGodotMessage;
@@ -28,7 +26,7 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
 
-                        let broadcaster = Broadcaster::create(
+                        let broadcaster = User::create(
                             payload.broadcaster_user_id.to_string().to_godot(),
                             payload.broadcaster_user_login.to_string().to_godot(),
                             payload.broadcaster_user_name.to_string().to_godot(),
@@ -50,11 +48,11 @@ impl HadalythTwitch {
 
                         self.signals().recv_automod_message_hold_v2().emit(
                             &broadcaster,
-                            held_at,
+                            &user,
                             &message,
                             message_id,
+                            held_at,
                             reason,
-                            &user,
                         )
                     }
                     _ => {}
@@ -71,7 +69,7 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
 
-                        let broadcaster = Broadcaster::create(
+                        let broadcaster: Gd<User> = User::create(
                             payload.broadcaster_user_id.to_string().to_godot(),
                             payload.broadcaster_user_login.to_string().to_godot(),
                             payload.broadcaster_user_name.to_string().to_godot(),
@@ -83,7 +81,7 @@ impl HadalythTwitch {
 
                         let message_id = payload.message_id.to_string();
 
-                        let moderator = Moderator::create(
+                        let moderator = User::create(
                             payload.moderator_user_id.to_string().to_godot(),
                             payload.moderator_user_login.to_string().to_godot(),
                             payload.moderator_user_name.to_string().to_godot(),
@@ -101,13 +99,13 @@ impl HadalythTwitch {
 
                         self.signals().recv_automod_message_update_v2().emit(
                             &broadcaster,
-                            held_at,
+                            &moderator,
+                            &user,
                             &message,
                             message_id,
-                            &moderator,
+                            held_at,
                             reason,
                             status,
-                            &user,
                         );
                     }
                     _ => {}
@@ -123,6 +121,46 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        let broadcaster = User::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot(),
+                        );
+
+                        let moderator = User::create(
+                            payload.moderator_user_id.to_string().to_godot(),
+                            payload.moderator_user_login.to_string().to_godot(),
+                            payload.moderator_user_name.to_string().to_godot(),
+                        );
+
+                        let aggression = payload.aggression;
+                        let bullying = payload.bullying;
+                        let disability = payload.disability;
+                        let misogyny = payload.misogyny;
+                        let race_ethnicity_or_religion = payload.race_ethnicity_or_religion;
+                        let sex_based_terms = payload.sex_based_terms;
+                        let sexuality_sex_or_gender = payload.sexuality_sex_or_gender;
+                        let swearing = payload.swearing;
+
+                        let overall_level = match payload.overall_level {
+                            Some(overall_level) => overall_level,
+                            None => 0,
+                        };
+
+                        self.signals().recv_automod_settings_update_v1().emit(
+                            &broadcaster,
+                            &moderator,
+                            aggression as i64,
+                            bullying as i64,
+                            disability as i64,
+                            misogyny as i64,
+                            race_ethnicity_or_religion as i64,
+                            sex_based_terms as i64,
+                            sexuality_sex_or_gender as i64,
+                            swearing as i64,
+                            overall_level as i64,
+                        )
                     }
                     _ => {}
                 }
@@ -137,6 +175,35 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        let action = payload.action;
+                        let action = format!("{:?}", action);
+
+                        let broadcaster = User::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot(),
+                        );
+
+                        let moderator = User::create(
+                            payload.moderator_user_id.to_string().to_godot(),
+                            payload.moderator_user_login.to_string().to_godot(),
+                            payload.moderator_user_name.to_string().to_godot(),
+                        );
+
+                        let from_automod = payload.from_automod;
+
+                        let terms: Vec<GString> =
+                            payload.terms.iter().map(|x| x.to_godot()).collect();
+                        let terms = PackedStringArray::from(terms);
+
+                        self.signals().recv_automod_terms_update_v1().emit(
+                            &broadcaster,
+                            &moderator,
+                            from_automod,
+                            action,
+                            &terms,
+                        )
                     }
                     _ => {}
                 }
@@ -151,6 +218,40 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        let broadcaster = User::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot(),
+                        );
+
+                        let requester = User::create(
+                            payload.requester_user_id.to_string().to_godot(),
+                            payload.requester_user_login.to_string().to_godot(),
+                            payload.requester_user_name.to_string().to_godot(),
+                        );
+
+                        let started_at = payload.started_at;
+                        let started_at = Timestamp::create(
+                            started_at.year().into(),
+                            started_at.month().into(),
+                            started_at.day().into(),
+                            started_at.hour().into(),
+                            started_at.minute().into(),
+                            started_at.second().into(),
+                        );
+
+                        let duration_seconds = payload.duration_seconds;
+
+                        let is_automatic = payload.is_automatic;
+
+                        self.signals().recv_channel_ad_break_begin_v1().emit(
+                            &broadcaster,
+                            &requester,
+                            &started_at,
+                            duration_seconds as i64,
+                            is_automatic,
+                        )
                     }
                     _ => {}
                 }
@@ -168,7 +269,7 @@ impl HadalythTwitch {
 
                         let bits = payload.bits as i64;
 
-                        let broadcaster = Broadcaster::create(
+                        let broadcaster = User::create(
                             payload.broadcaster_user_id.to_string().to_godot(),
                             payload.broadcaster_user_login.to_string().to_godot(),
                             payload.broadcaster_user_name.to_string().to_godot(),
@@ -207,12 +308,12 @@ impl HadalythTwitch {
                         );
 
                         self.signals().recv_channel_bits_use_v1().emit(
-                            bits,
                             &broadcaster,
-                            bits_custom_power_up.as_ref(),
-                            message.as_ref(),
-                            bits_type,
                             &user,
+                            message.as_ref(),
+                            bits,
+                            bits_type,
+                            bits_custom_power_up.as_ref(),
                         )
                     }
                     _ => {}
@@ -229,7 +330,7 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
 
-                        let broadcaster = Broadcaster::create(
+                        let broadcaster = User::create(
                             payload.broadcaster_user_id.to_string().to_godot(),
                             payload.broadcaster_user_login.to_string().to_godot(),
                             payload.broadcaster_user_name.to_string().to_godot(),
@@ -253,7 +354,7 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
 
-                        let broadcaster = Broadcaster::create(
+                        let broadcaster = User::create(
                             payload.broadcaster_user_id.to_string().to_godot(),
                             payload.broadcaster_user_login.to_string().to_godot(),
                             payload.broadcaster_user_name.to_string().to_godot(),
@@ -294,7 +395,7 @@ impl HadalythTwitch {
                             badges.push(&badge);
                         }
 
-                        let broadcaster = Broadcaster::create(
+                        let broadcaster = User::create(
                             payload.broadcaster_user_id.to_string().to_godot(),
                             payload.broadcaster_user_login.to_string().to_godot(),
                             payload.broadcaster_user_name.to_string().to_godot(),
@@ -316,7 +417,7 @@ impl HadalythTwitch {
                             None => "".to_string(),
                         };
 
-                        let chatter = Chatter::create(
+                        let chatter = User::create(
                             payload.chatter_user_id.to_string().to_godot(),
                             payload.chatter_user_login.to_string().to_godot(),
                             payload.chatter_user_name.to_string().to_godot(),
@@ -378,7 +479,7 @@ impl HadalythTwitch {
                                 Some(source_broadcaster_user_id),
                                 Some(source_broadcaster_user_login),
                                 Some(source_broadcaster_user_name),
-                            ) => Some(Broadcaster::create(
+                            ) => Some(User::create(
                                 source_broadcaster_user_id.to_string().to_godot(),
                                 source_broadcaster_user_login.to_string().to_godot(),
                                 source_broadcaster_user_name.to_string().to_godot(),
@@ -402,17 +503,17 @@ impl HadalythTwitch {
                         };
 
                         self.signals().recv_channel_chat_message_v1().emit(
-                            &badges,
                             &broadcaster,
-                            channel_points_animation_id,
-                            channel_points_custom_reward_id,
                             &chatter,
-                            cheer,
-                            color,
-                            is_source_only,
                             &message,
                             message_id,
                             message_type,
+                            &badges,
+                            channel_points_animation_id,
+                            channel_points_custom_reward_id,
+                            cheer,
+                            color,
+                            is_source_only,
                             reply.as_ref(),
                             source.as_ref(),
                         )
@@ -430,6 +531,26 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        let broadcaster = User::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot(),
+                        );
+
+                        let user = User::create(
+                            payload.target_user_id.to_string().to_godot(),
+                            payload.target_user_login.to_string().to_godot(),
+                            payload.target_user_name.to_string().to_godot(),
+                        );
+
+                        let message_id = payload.message_id.to_string();
+
+                        self.signals().recv_channel_chat_message_delete_v1().emit(
+                            &broadcaster,
+                            &user,
+                            message_id,
+                        )
                     }
                     _ => {}
                 }

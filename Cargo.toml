@@ -5,6 +5,8 @@ resolver = "3"
 
 [workspace.dependencies]
 godot = "0.5.0"
+zstd = "0.13.3"
+rand = "0.10.1"
 byteorder = "1.5.0"
 tokio = "1.52.3"
 tokio-tungstenite = "0.29.0"
@@ -15,10 +17,9 @@ serde_derive = "1.0.228"
 reqwest = "0.13.1"
 twitch_api = "0.8.0"
 twitch_oauth2 = "0.17.1"
+renet = "2.0.0"
+renet_netcode = "2.0.0"
 grafton-ndi = {version = "1.0.0", default-features = false}
-hadalyth-arkit = {path = "./crates/hadalyth_arkit"}
-hadalyth-twitch = {path = "./crates/hadalyth_twitch"}
-hadalyth-ndi = {path = "./crates/hadalyth_ndi"}
 
 
 [profile.dev]

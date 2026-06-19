@@ -8,12 +8,10 @@ use crate::custom_events::twitch_event::TwitchEvent;
 
 use crate::custom_resources::badge::Badge;
 use crate::custom_resources::bits_custom_power_up::BitsCustomPowerUp;
-use crate::custom_resources::broadcaster::Broadcaster;
-use crate::custom_resources::chatter::Chatter;
 use crate::custom_resources::message::Message;
-use crate::custom_resources::moderator::Moderator;
 use crate::custom_resources::reply::Reply;
 use crate::custom_resources::source::Source;
+use crate::custom_resources::timestamp::Timestamp;
 use crate::custom_resources::user::User;
 
 use crate::hadalyth_twitch_async::*;
@@ -189,64 +187,92 @@ impl HadalythTwitch {
 
     #[signal]
     pub fn recv_automod_message_hold_v2(
-        broadcaster: Option<Gd<Broadcaster>>,
-        held_at: String,
+        broadcaster: Option<Gd<User>>,
+        user: Option<Gd<User>>,
         message: Option<Gd<Message>>,
         message_id: String,
+        held_at: String,
         reason: String,
-        user: Option<Gd<User>>,
     );
     #[signal]
     pub fn recv_automod_message_update_v2(
-        broadcaster: Option<Gd<Broadcaster>>,
-        held_at: String,
+        broadcaster: Option<Gd<User>>,
+        moderator: Option<Gd<User>>,
+        user: Option<Gd<User>>,
         message: Option<Gd<Message>>,
         message_id: String,
-        moderator: Option<Gd<Moderator>>,
+        held_at: String,
         reason: String,
         status: String,
-        user: Option<Gd<User>>,
     );
     #[signal]
-    pub fn recv_automod_settings_update_v1();
+    pub fn recv_automod_settings_update_v1(
+        broadcaster: Option<Gd<User>>,
+        moderator: Option<Gd<User>>,
+        aggression: i64,
+        bullying: i64,
+        disability: i64,
+        misogyny: i64,
+        race_ethnicity_or_religion: i64,
+        sex_based_terms: i64,
+        sexuality_sex_or_gender: i64,
+        swearing: i64,
+        overall_level: i64,
+    );
     #[signal]
-    pub fn recv_automod_terms_update_v1();
+    pub fn recv_automod_terms_update_v1(
+        broadcaster: Option<Gd<User>>,
+        moderator: Option<Gd<User>>,
+        from_automod: bool,
+        action: String,
+        terms: PackedStringArray,
+    );
     #[signal]
-    pub fn recv_channel_ad_break_begin_v1();
+    pub fn recv_channel_ad_break_begin_v1(
+        broadcaster: Option<Gd<User>>,
+        requester: Option<Gd<User>>,
+        started_at: Option<Gd<Timestamp>>,
+        duration_seconds: i64,
+        is_automatic: bool,
+    );
     #[signal]
     pub fn recv_channel_bits_use_v1(
-        bits: i64,
-        broadcaster: Option<Gd<Broadcaster>>,
-        bits_custom_power_up: Option<Gd<BitsCustomPowerUp>>,
-        message: Option<Gd<Message>>,
-        bits_type: i64,
+        broadcaster: Option<Gd<User>>,
         user: Option<Gd<User>>,
+        message: Option<Gd<Message>>,
+        bits: i64,
+        bits_type: i64,
+        bits_custom_power_up: Option<Gd<BitsCustomPowerUp>>,
     );
     #[signal]
-    pub fn recv_channel_chat_clear_v1(broadcaster: Option<Gd<Broadcaster>>);
+    pub fn recv_channel_chat_clear_v1(broadcaster: Option<Gd<User>>);
     #[signal]
     pub fn recv_channel_chat_clear_user_messages_v1(
-        broadcaster: Option<Gd<Broadcaster>>,
+        broadcaster: Option<Gd<User>>,
         user: Option<Gd<User>>,
     );
     #[signal]
     pub fn recv_channel_chat_message_v1(
-        badges: Array<Gd<Badge>>,
-        broadcaster: Option<Gd<Broadcaster>>,
-        channel_points_animation_id: String,
-        channel_points_custom_reward_id: String,
-        chatter: Option<Gd<Chatter>>,
-        cheer: i64,
-        color: String,
-        is_source_only: bool,
+        broadcaster: Option<Gd<User>>,
+        chatter: Option<Gd<User>>,
         message: Option<Gd<Message>>,
         message_id: String,
         message_type: i64,
+        badges: Array<Gd<Badge>>,
+        channel_points_animation_id: String,
+        channel_points_custom_reward_id: String,
+        cheer: i64,
+        color: String,
+        is_source_only: bool,
         reply: Option<Gd<Reply>>,
         source: Option<Gd<Source>>,
     );
     #[signal]
-    pub fn recv_channel_chat_message_delete_v1();
+    pub fn recv_channel_chat_message_delete_v1(
+        broadcaster: Option<Gd<User>>,
+        user: Option<Gd<User>>,
+        message_id: String,
+    );
     #[signal]
     pub fn recv_channel_chat_notification_v1();
     #[signal]

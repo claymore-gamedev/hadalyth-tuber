@@ -1,4 +1,4 @@
-use crate::custom_resources::{badge::Badge, broadcaster::Broadcaster};
+use crate::custom_resources::{badge::Badge, user::User};
 use godot::prelude::*;
 
 #[derive(GodotClass)]
@@ -7,7 +7,7 @@ pub struct Source {
     #[var]
     pub source_badges: Array<Gd<Badge>>,
     #[var]
-    pub source_broadcaster: Option<Gd<Broadcaster>>,
+    pub source_broadcaster: Option<Gd<User>>,
     #[var]
     pub source_message_id: GString,
 }
@@ -17,7 +17,7 @@ impl Source {
     #[func]
     pub fn create(
         source_badges: Array<Gd<Badge>>,
-        source_broadcaster: Option<Gd<Broadcaster>>,
+        source_broadcaster: Option<Gd<User>>,
         source_message_id: GString,
     ) -> Gd<Self> {
         Gd::from_object(Self {

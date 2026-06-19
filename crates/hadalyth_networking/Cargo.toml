@@ -1,0 +1,14 @@
+[package]
+name = "hadalyth-networking"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+godot = {workspace = true, features=["serde"]}
+rand = {workspace = true}
+renet = {workspace = true}
+renet_netcode = {workspace = true}
+zstd = {workspace = true}
