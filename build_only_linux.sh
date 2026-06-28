@@ -12,6 +12,7 @@ echo
 GLIBC_VERSION="2.28"
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --package hadalyth-arkit
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --package hadalyth-twitch
+cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --package hadalyth-networking
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --package hadalyth-ndi
 cp -L "$NDI_SO" "$BASE_DIR/target/x86_64-unknown-linux-gnu/debug/"
 
@@ -22,6 +23,7 @@ echo
 GLIBC_VERSION="2.28"
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --release --package hadalyth-arkit
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --release --package hadalyth-twitch
+cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --release --package hadalyth-networking
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --release --package hadalyth-ndi
 cp -L "$NDI_SO" "$BASE_DIR/target/x86_64-unknown-linux-gnu/release/"
 

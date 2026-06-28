@@ -12,6 +12,7 @@ echo
 
 cargo xwin build --target x86_64-pc-windows-msvc --package hadalyth-arkit
 cargo xwin build --target x86_64-pc-windows-msvc --package hadalyth-twitch
+cargo xwin build --target x86_64-pc-windows-msvc --package hadalyth-networking
 cargo xwin build --target x86_64-pc-windows-msvc --package hadalyth-ndi
 cp "$NDI_DLL" "$BASE_DIR/target/x86_64-pc-windows-msvc/debug/"
 
@@ -21,5 +22,6 @@ echo
 
 cargo xwin build --target x86_64-pc-windows-msvc --release --package hadalyth-arkit
 cargo xwin build --target x86_64-pc-windows-msvc --release --package hadalyth-twitch
+cargo xwin build --target x86_64-pc-windows-msvc --release --package hadalyth-networking
 cargo xwin build --target x86_64-pc-windows-msvc --release --package hadalyth-ndi
 cp "$NDI_DLL" "$BASE_DIR/target/x86_64-pc-windows-msvc/release/"
