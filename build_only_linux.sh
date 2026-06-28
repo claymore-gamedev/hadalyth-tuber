@@ -1,3 +1,5 @@
+start=$EPOCHREALTIME
+
 echo
 echo "LINUX BUILDS"
 echo
@@ -27,3 +29,6 @@ cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --release --pack
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --release --package hadalyth-twitch
 cp -L "$NDI_SO" "$BASE_DIR/target/x86_64-unknown-linux-gnu/release/"
 
+stop=$EPOCHREALTIME
+elapsed=$(bc -l <<< "$stop - $start")
+echo $elapsed

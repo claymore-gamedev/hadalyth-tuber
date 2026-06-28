@@ -1,3 +1,4 @@
+start=$EPOCHREALTIME
 
 echo
 echo "WINDOWS BUILDS"
@@ -25,3 +26,7 @@ cargo xwin build --target x86_64-pc-windows-msvc --release --package hadalyth-nd
 cargo xwin build --target x86_64-pc-windows-msvc --release --package hadalyth-networking
 cargo xwin build --target x86_64-pc-windows-msvc --release --package hadalyth-twitch
 cp "$NDI_DLL" "$BASE_DIR/target/x86_64-pc-windows-msvc/release/"
+
+stop=$EPOCHREALTIME
+elapsed=$(bc -l <<< "$stop - $start")
+echo $elapsed
