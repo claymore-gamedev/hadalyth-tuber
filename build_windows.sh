@@ -29,4 +29,4 @@ cp "$NDI_DLL" "$BASE_DIR/target/x86_64-pc-windows-msvc/release/"
 
 stop=$EPOCHREALTIME
 elapsed=$(bc -l <<< "$stop - $start")
-echo $elapsed
+echo "Build took $elapsed seconds"
