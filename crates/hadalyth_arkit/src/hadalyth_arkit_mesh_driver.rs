@@ -103,7 +103,7 @@ impl INode for HadalythArkitMeshDriver {
 
         let blend_shape_lerp_speed = 10.0;
         let blend_shape_jaw_open_mult = 2.0;
-        let blend_shape_jaw_open_root = 0.5;
+        let blend_shape_jaw_open_root = 0.75;
 
         let blend_shape_indexes = vec![];
         let blend_shape_index_jaw_open = -1;
