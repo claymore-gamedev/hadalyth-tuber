@@ -81,8 +81,10 @@ struct HadalythArkitMeshDriver {
     #[export]
     blend_shape_jaw_open_mult: f32,
 
-    blend_shape_indexes: Vec<i32>,
+    #[export]
+    blend_shape_jaw_open_root : f32,
 
+    blend_shape_indexes: Vec<i32>,
     blend_shape_index_jaw_open: i32,
 
     #[var]
@@ -101,6 +103,7 @@ impl INode for HadalythArkitMeshDriver {
 
         let blend_shape_lerp_speed = 10.0;
         let blend_shape_jaw_open_mult = 2.0;
+        let blend_shape_jaw_open_root = 0.5;
 
         let blend_shape_indexes = vec![];
         let blend_shape_index_jaw_open = -1;
@@ -113,6 +116,7 @@ impl INode for HadalythArkitMeshDriver {
 
             blend_shape_lerp_speed,
             blend_shape_jaw_open_mult,
+            blend_shape_jaw_open_root,
 
             blend_shape_indexes,
             blend_shape_index_jaw_open,
@@ -169,19 +173,21 @@ impl INode for HadalythArkitMeshDriver {
             self.current_blend_shapes.bind_mut().blend_shapes[i] =
                 cur_val + (tar_val - cur_val) * delta * self.blend_shape_lerp_speed;
 
+            let mut nex_val = self.current_blend_shapes.bind_mut().blend_shapes[i];
+
             let blend_shape_index = self.blend_shape_indexes[i];
             if blend_shape_index == -1 {
                 continue;
             }
 
-            let mut mult = 1.0;
             if blend_shape_index == self.blend_shape_index_jaw_open {
-                mult = self.blend_shape_jaw_open_mult;
+                nex_val = nex_val * self.blend_shape_jaw_open_mult;
+                nex_val = f32::powf(nex_val, self.blend_shape_jaw_open_root);
             }
 
             target.set_blend_shape_value(
                 blend_shape_index,
-                self.current_blend_shapes.bind().blend_shapes[i] * mult,
+                nex_val,
             );
         }
 

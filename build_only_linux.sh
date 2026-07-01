@@ -7,11 +7,12 @@ echo
 BASE_DIR=$(cd -- "$(dirname -- "${B_SOURCE[0]}")" &> /dev/null && pwd)
 NDI_SO="$BASE_DIR/api/ndi_sdk/lib/x86_64-linux-gnu/libndi.so"
 
+GLIBC_VERSION="2.41"
+
 echo
 echo "DEBUG BUILDS"
 echo
 
-GLIBC_VERSION="2.28"
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --package hadalyth-arkit
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --package hadalyth-ndi
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --package hadalyth-networking
@@ -22,7 +23,6 @@ echo
 echo "RELEASE BUILDS"
 echo
 
-GLIBC_VERSION="2.28"
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --release --package hadalyth-arkit
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --release --package hadalyth-ndi
 cargo zigbuild --target x86_64-unknown-linux-gnu.$GLIBC_VERSION --release --package hadalyth-networking
