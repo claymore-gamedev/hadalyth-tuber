@@ -31,4 +31,4 @@ cp -L "$NDI_SO" "$BASE_DIR/target/x86_64-unknown-linux-gnu/release/"
 
 stop=$EPOCHREALTIME
 elapsed=$(bc -l <<< "$stop - $start")
-echo $elapsed
+echo "Build took $elapsed seconds"

@@ -5,4 +5,4 @@ start=$EPOCHREALTIME
 
 stop=$EPOCHREALTIME
 elapsed=$(bc -l <<< "$stop - $start")
-echo $elapsed
+echo "Build took $elapsed seconds"
