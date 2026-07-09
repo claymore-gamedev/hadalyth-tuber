@@ -1,18 +1,19 @@
 use godot::prelude::*;
-
 use godot::classes::Node;
 use godot::classes::INode;
 
-use image;
 use grafton_ndi;
-use image::ImageEncoder;
 
 use crate::hadalyth_ndi_enums::NdiEvent;
+use crate::hadalyth_frame_resizer::HadalythFrameResizer;
+
 
 #[derive(GodotClass)]
 #[class(base=Node)]
 struct HadalythNdi {
 
+    resizer : HadalythFrameResizer,
+    
     tx : std::sync::mpsc::Sender<NdiEvent>,
     rx : std::sync::mpsc::Receiver<NdiEvent>,
 
@@ -23,17 +24,21 @@ struct HadalythNdi {
     video_framesync : Option<grafton_ndi::FrameSync>,
     video_framesync_timer : f32,
     video_framesync_last_recv_timecode : i64,
-    video_framesync_recv_frames : i64,
 
     audio_framesync : Option<grafton_ndi::FrameSync>,
     audio_framesync_timer : f32,
-    
+
     base : Base<Node>
+
 }
+
 
 #[godot_api]
 impl INode for HadalythNdi {
+
     fn init(base : Base<Node>) -> Self {
+
+        let resizer = HadalythFrameResizer::new();
 
         let (tx, rx) = std::sync::mpsc::channel::<NdiEvent>();
 
@@ -44,12 +49,14 @@ impl INode for HadalythNdi {
         let video_framesync : Option<grafton_ndi::FrameSync> = None;
         let video_framesync_timer = 0.0;
         let video_framesync_last_recv_timecode = 0;
-        let video_framesync_recv_frames = 0;
         
         let audio_framesync : Option<grafton_ndi::FrameSync> = None;
         let audio_framesync_timer = 0.0;
         
         return Self {
+
+            resizer,
+
             tx,
             rx,
 
@@ -60,7 +67,6 @@ impl INode for HadalythNdi {
             video_framesync,
             video_framesync_timer,
             video_framesync_last_recv_timecode,
-            video_framesync_recv_frames,
             
             audio_framesync,
             audio_framesync_timer,
@@ -79,7 +85,7 @@ impl INode for HadalythNdi {
         // Check for available sources request responses        
         while let Ok(event) = self.rx.try_recv() {
             match event {
-                NdiEvent::SourcesFound(sources) => {
+                NdiEvent::SourcesFound{ sources } => {
                     self.sources = sources;
 
                     // Emit a signal here with their string names
@@ -92,9 +98,10 @@ impl INode for HadalythNdi {
             }
         }
 
+
         self._poll_video(delta);
         self._poll_audio(delta);
-        
+
 
     }
 }
@@ -109,11 +116,7 @@ impl HadalythNdi {
 
 
     #[signal]
-    fn recv_source_resolution(width : i64, height : i64);
-
-
-    #[signal]
-    fn recv_source_video_data(video_data : PackedByteArray);
+    fn recv_source_video_data(width : i64, height : i64, video_data : PackedByteArray);
 
 
     #[signal]
@@ -130,49 +133,43 @@ impl HadalythNdi {
         self.video_framesync_timer -= 1.0 / 30.0;
         
         // Grab frames, this only works if the framesync is active
-        let (height, width, data) = {
+        let frame = {
             let Some(ref framesync) = self.video_framesync else {return};
             let Ok(video) = framesync.capture_video(
                 grafton_ndi::ScanType::Progressive
             ) else {return};
             let Some(video) = video else {return};
-           
+            
             let timecode = video.timecode();
+            if self.video_framesync_last_recv_timecode == timecode {
+                return;
+            }
+            self.video_framesync_last_recv_timecode = timecode;
+            
             let height = video.height();
             let width = video.width();
             let data = video.data();
 
-            // Check if this is the same frame as last time (FrameSync may repeat frames)
-            if timecode == self.video_framesync_last_recv_timecode {
-                return;
-            }
-            self.video_framesync_last_recv_timecode = timecode;
-
-            // Copy the video into packed byte arrays
-            let data = PackedByteArray::from(data);
-
-            (height, width, data)
-        };
-        
-        // Create the necessary image texture
-        if self.video_framesync_recv_frames == 0 {
-            godot_print!("First video frame received:");
-            godot_print!("  Resolution: {}x{}", width, height);
-
-            // Output the video resolution and length right here
-            self.signals().recv_source_resolution().emit(
-                width as i64,
-                height as i64
+            let (width, height, data) = self.resizer.resize(
+                width as i64, 
+                height as i64,
+                data
             );
 
-        }
-        self.video_framesync_recv_frames += 1;
+            let Some(data) = data else {
+                return;
+            };
+            (width, height, PackedByteArray::from(data))
+        };
 
+        let (width, height, data) = frame;
 
         self.signals().recv_source_video_data().emit(
-            &data
+            width, 
+            height,
+            &PackedByteArray::from(data)
         );
-
+        
     }
 
 
@@ -208,7 +205,7 @@ impl HadalythNdi {
             let data = PackedVector2Array::from(data);
 
             data
-        };  
+        };
 
         self.signals().recv_source_audio_data().emit(
             &data
@@ -229,16 +226,17 @@ impl HadalythNdi {
             .build();
         let finder = grafton_ndi::Finder::new(ndi, &finder_options);
         let Ok(finder) = finder else {return};
-        
+
         std::thread::spawn(move || {
             // Search for sources
             let sources = finder.find_sources(std::time::Duration::from_secs(5));
             let Ok(sources) = sources else {
-                let _ = source_list_tx.send(NdiEvent::SourcesFound(vec![]));
+                let _ = source_list_tx.send(NdiEvent::SourcesFound{sources:vec![]});
                 return;
             };
-            let _ = source_list_tx.send(NdiEvent::SourcesFound(sources));
+            let _ = source_list_tx.send(NdiEvent::SourcesFound{sources});
         });
+
     }
 
 
@@ -250,7 +248,6 @@ impl HadalythNdi {
         self.video_framesync = None;
         self.video_framesync_timer = 0.0;
         self.video_framesync_last_recv_timecode = 0;
-        self.video_framesync_recv_frames = 0;
         
         // Get the source by name if it's currently in the map
         let source = self.sources.iter().find(|x| {return x.name == source_name});
@@ -277,7 +274,6 @@ impl HadalythNdi {
     fn connect_to_source_audio(&mut self, source_name : String) -> bool {
         let Ok(ref ndi) = self.ndi else {return false};
 
-
         // Clear out old frame sync and data
         self.audio_framesync = None;
         self.audio_framesync_timer = 0.0;
@@ -300,59 +296,20 @@ impl HadalythNdi {
         self.audio_framesync = Some(framesync);       
 
         return true;
+
     }
 
 
     #[func]
     fn disconnect(&mut self) {
+
         self.video_framesync = None;
         self.video_framesync_timer = 0.0;
         self.video_framesync_last_recv_timecode = 0;
-        self.video_framesync_recv_frames = 0;
 
         self.audio_framesync = None;
         self.audio_framesync_timer = 0.0;
-    }
 
-
-    #[func]
-    fn encode_buffer(&mut self, width : i64, height : i64, p_buffer : PackedByteArray) -> PackedByteArray {
-    
-        let mut encoded : Vec<u8> = Vec::new();
-
-        let encoder = image::codecs::avif::AvifEncoder::new_with_speed_quality(
-            &mut encoded, 
-            10,
-            50, 
-        );
-        let _ = encoder.write_image(
-            &p_buffer.to_vec(), 
-            width as u32, 
-            height as u32, 
-            image::ExtendedColorType::Rgba8
-        );
-
-        let encoded = PackedByteArray::from(encoded);
-        
-        return encoded;
-    }
-
-
-    #[func]
-    fn decode_buffer(&mut self,  p_buffer : PackedByteArray) -> PackedByteArray {
-        
-        let decoded = image::load_from_memory_with_format(
-            &p_buffer.to_vec(),
-            image::ImageFormat::Avif
-        );
-        let Ok(decoded) = decoded else {
-            return PackedByteArray::new();
-        };
-
-        let decoded = decoded.into_rgba8().into_raw();
-        let decoded = PackedByteArray::from(decoded);
-
-        return decoded;
     }
 
 }

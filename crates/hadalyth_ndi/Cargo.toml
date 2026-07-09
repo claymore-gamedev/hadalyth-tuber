@@ -9,4 +9,4 @@ crate-type = ["cdylib"]
 [dependencies]
 godot = {workspace = true}
 grafton-ndi = {workspace = true}
-image = { workspace = true}
+fast_image_resize = {workspace = true, features = ["image", "only_u8x4", "rayon"] }
