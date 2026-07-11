@@ -20,6 +20,7 @@ twitch_oauth2 = "0.17.1"
 renet = "2.0.0"
 renet_netcode = "2.0.0"
 grafton-ndi = "1.0.0"
+fast_image_resize = "6.0.0"
 image = "0.25.10"
 
 
