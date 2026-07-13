@@ -8,6 +8,8 @@ use crate::custom_events::twitch_event::TwitchEvent;
 
 use crate::custom_resources::badge::Badge;
 use crate::custom_resources::bits_custom_power_up::BitsCustomPowerUp;
+use crate::custom_resources::charity::Charity;
+use crate::custom_resources::currency::Currency;
 use crate::custom_resources::message::Message;
 use crate::custom_resources::reply::Reply;
 use crate::custom_resources::source::Source;
@@ -19,6 +21,7 @@ use crate::hadalyth_twitch_async::*;
 const REFRESH_TOKEN_PATH: &str = "user://refresh_token.cfg";
 const REFRESH_CFG_SECTION_KEY: &str = "REFRESH_TOKEN";
 const REFRESH_CFG_REFRESH_TOKEN_KEY: &str = "refresh_token";
+
 
 #[derive(GodotClass)]
 #[class(base=Node)]
@@ -41,6 +44,7 @@ pub struct HadalythTwitch {
 
     base: Base<Node>,
 }
+
 
 #[godot_api]
 impl INode for HadalythTwitch {
@@ -282,7 +286,14 @@ impl HadalythTwitch {
     #[signal]
     pub fn recv_channel_chat_settings_update_v1();
     #[signal]
-    pub fn recv_channel_charity_campaign_donate_v1();
+    pub fn recv_channel_charity_campaign_donate_v1(
+        broadcaster : Option<Gd<User>>,
+        user : Option<Gd<User>>,
+        charity : Option<Gd<Charity>>,
+        amount : Option<Gd<Currency>>,
+        campaign_id : String,
+        donation_id : String
+    );
     #[signal]
     pub fn recv_channel_charity_campaign_progress_v1();
     #[signal]

@@ -2,6 +2,8 @@ use godot::prelude::*;
 
 use crate::custom_resources::badge::Badge;
 use crate::custom_resources::bits_custom_power_up::BitsCustomPowerUp;
+use crate::custom_resources::charity::Charity;
+use crate::custom_resources::currency::Currency;
 use crate::custom_resources::message::Message;
 use crate::custom_resources::reply::Reply;
 use crate::custom_resources::source::Source;
@@ -565,6 +567,9 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+                        
+                        godot_error!("Event not implemented yet");
+
                     }
                     _ => {}
                 }
@@ -579,6 +584,9 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        godot_error!("Event not implemented yet");
+
                     }
                     _ => {}
                 }
@@ -593,6 +601,9 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        godot_error!("Event not implemented yet");
+
                     }
                     _ => {}
                 }
@@ -607,6 +618,9 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        godot_error!("Event not implemented yet");
+
                     }
                     _ => {}
                 }
@@ -621,6 +635,44 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        let broadcaster = User::create(
+                            payload.broadcaster_id.to_string().to_godot(),
+                            payload.broadcaster_login.to_string().to_godot(),
+                            payload.broadcaster_name.to_string().to_godot(),
+                        );
+                        
+                        let user = User::create(
+                            payload.user_id.to_string().to_godot(),
+                            payload.user_login.to_string().to_godot(),
+                            payload.user_name.to_string().to_godot(),
+                        );
+                        
+                        let charity = Charity::create(
+                            payload.charity_description.to_godot(),
+                            payload.charity_logo.to_godot(),
+                            payload.charity_name.to_godot(),
+                            payload.charity_website.to_godot()
+                        );
+
+                        let amount = payload.amount;
+                        let amount = Currency::create(
+                            amount.value, 
+                            amount.decimal_places, 
+                            amount.currency.to_godot()
+                        );
+
+                        let campaign_id = payload.campaign_id.as_str().to_string();
+                        let donation_id = payload.id.as_str().to_string();                      
+                        
+                        self.signals().recv_channel_charity_campaign_donate_v1().emit(
+                            &broadcaster,
+                            &user,
+                            &charity,
+                            &amount,
+                            campaign_id,
+                            donation_id
+                        );
                     }
                     _ => {}
                 }

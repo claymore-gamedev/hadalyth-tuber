@@ -10,6 +10,9 @@ pub mod message;
 pub mod reply;
 pub mod source;
 
+pub mod currency;
+pub mod charity;
+
 pub mod timestamp;
 
 pub mod bits_custom_power_up;

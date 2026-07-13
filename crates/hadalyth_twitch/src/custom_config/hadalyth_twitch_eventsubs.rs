@@ -141,9 +141,9 @@ pub struct HadalythTwitchEventSubs {
     pub channel_subscription_gift_v1: bool,
     #[export]
     pub channel_subscription_message_v1: bool,
-
     // #[export] pub conduit_shard_disabled_v1 : bool,
     // #[export] pub extension_bits_transaction_create_v1 : bool,
+
     #[export_group(name = "Stream")]
     #[export]
     pub stream_online_v1: bool,
@@ -262,15 +262,12 @@ impl HadalythTwitchEventSubs {
             channel_vip_remove_v1: self.channel_vip_remove_v1,
             channel_warning_acknowledge_v1: self.channel_warning_acknowledge_v1,
             channel_warning_send_v1: self.channel_warning_send_v1,
-            channel_points_automatic_reward_redemption_add_v1: self
-                .channel_points_automatic_reward_redemption_add_v1,
+            channel_points_automatic_reward_redemption_add_v1: self.channel_points_automatic_reward_redemption_add_v1,
             channel_points_custom_reward_add_v1: self.channel_points_custom_reward_add_v1,
             channel_points_custom_reward_update_v1: self.channel_points_custom_reward_update_v1,
             channel_points_custom_reward_remove_v1: self.channel_points_custom_reward_remove_v1,
-            channel_points_custom_reward_redemption_add_v1: self
-                .channel_points_custom_reward_redemption_add_v1,
-            channel_points_custom_reward_redemption_update_v1: self
-                .channel_points_custom_reward_redemption_update_v1,
+            channel_points_custom_reward_redemption_add_v1: self.channel_points_custom_reward_redemption_add_v1,
+            channel_points_custom_reward_redemption_update_v1: self.channel_points_custom_reward_redemption_update_v1,
             channel_poll_begin_v1: self.channel_poll_begin_v1,
             channel_poll_progress_v1: self.channel_poll_progress_v1,
             channel_poll_end_v1: self.channel_poll_end_v1,
