@@ -295,7 +295,13 @@ impl HadalythTwitch {
         donation_id : String
     );
     #[signal]
-    pub fn recv_channel_charity_campaign_progress_v1();
+    pub fn recv_channel_charity_campaign_progress_v1(
+        broadcaster : Option<Gd<User>>,
+        charity : Option<Gd<User>>,
+        current_amount : Option<Gd<Currency>>,
+        target_amount : Option<Gd<Currency>>,
+        campaign_id : String
+    );
     #[signal]
     pub fn recv_channel_charity_campaign_start_v1();
     #[signal]

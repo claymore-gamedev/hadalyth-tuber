@@ -687,6 +687,43 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        let broadcaster = User::create(
+                            payload.broadcaster_id.to_string().to_godot(),
+                            payload.broadcaster_login.to_string().to_godot(),
+                            payload.broadcaster_name.to_string().to_godot(),
+                        );
+                        
+                        let charity = Charity::create(
+                            payload.charity_description.to_godot(),
+                            payload.charity_logo.to_godot(),
+                            payload.charity_name.to_godot(),
+                            payload.charity_website.to_godot()
+                        );
+
+                        let current_amount = payload.current_amount;
+                        let current_amount = Currency::create(
+                            current_amount.value, 
+                            current_amount.decimal_places, 
+                            current_amount.currency.to_godot()
+                        );
+
+                        let target_amount = payload.target_amount;
+                        let target_amount = Currency::create(
+                            target_amount.value, 
+                            target_amount.decimal_places, 
+                            target_amount.currency.to_godot()
+                        );
+
+                        let campaign_id = payload.id.as_str().to_string();
+                        
+                        self.signals().recv_channel_charity_campaign_progress_v1().emit(
+                            &broadcaster,
+                            &charity,
+                            &current_amount,
+                            &target_amount,
+                            campaign_id
+                        );
                     }
                     _ => {}
                 }
