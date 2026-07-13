@@ -16,6 +16,8 @@ use crate::custom_resources::source::Source;
 use crate::custom_resources::timestamp::Timestamp;
 use crate::custom_resources::user::User;
 
+use crate::custom_enums::automod_message_status::AutomodMessageStatus;
+
 use crate::hadalyth_twitch_async::*;
 
 const REFRESH_TOKEN_PATH: &str = "user://refresh_token.cfg";
@@ -280,11 +282,31 @@ impl HadalythTwitch {
     #[signal]
     pub fn recv_channel_chat_notification_v1();
     #[signal]
-    pub fn recv_channel_chat_user_message_hold_v1();
+    pub fn recv_channel_chat_user_message_hold_v1(
+        broadcaster: Option<Gd<User>>,
+        user: Option<Gd<User>>,
+        message_id: String,
+        message: Option<Gd<Message>>    
+    );
     #[signal]
-    pub fn recv_channel_chat_user_message_update_v1();
+    pub fn recv_channel_chat_user_message_update_v1(
+        broadcaster : Option<Gd<User>>,
+        user : Option<Gd<User>>,
+        message_id : String,
+        message : Option<Gd<Message>>,
+        status : AutomodMessageStatus,
+    );
     #[signal]
-    pub fn recv_channel_chat_settings_update_v1();
+    pub fn recv_channel_chat_settings_update_v1(
+        broadcaster : Option<Gd<User>>,
+        emote_mode : bool,
+        follower_mode : bool,
+        follower_mode_duration_minutes : i64,
+        slow_mode : bool,
+        slow_mode_wait_time_seconds : i64,
+        subscriber_mode : bool,
+        unique_chat_mode : bool
+    );
     #[signal]
     pub fn recv_channel_charity_campaign_donate_v1(
         broadcaster : Option<Gd<User>>,
@@ -297,15 +319,29 @@ impl HadalythTwitch {
     #[signal]
     pub fn recv_channel_charity_campaign_progress_v1(
         broadcaster : Option<Gd<User>>,
-        charity : Option<Gd<User>>,
+        charity : Option<Gd<Charity>>,
         current_amount : Option<Gd<Currency>>,
         target_amount : Option<Gd<Currency>>,
         campaign_id : String
     );
     #[signal]
-    pub fn recv_channel_charity_campaign_start_v1();
+    pub fn recv_channel_charity_campaign_start_v1(
+        broadcaster : Option<Gd<User>>,
+        charity : Option<Gd<Charity>>,
+        current_amount : Option<Gd<Currency>>,
+        target_amount : Option<Gd<Currency>>,
+        started_at : Option<Gd<Timestamp>>,
+        campaign_id : String
+    );
     #[signal]
-    pub fn recv_channel_charity_campaign_stop_v1();
+    pub fn recv_channel_charity_campaign_stop_v1(
+        broadcaster : Option<Gd<User>>,
+        charity : Option<Gd<Charity>>,
+        current_amount : Option<Gd<Currency>>,
+        target_amount : Option<Gd<Currency>>,
+        stopped_at : Option<Gd<Timestamp>>,
+        campaign_id : String
+    );
     #[signal]
     pub fn recv_channel_update_v2();
     #[signal]
@@ -419,6 +455,8 @@ impl HadalythTwitch {
     pub fn twitch_socket_status(status: bool);
 }
 
+
+// Init functions
 #[godot_api(secondary)]
 impl HadalythTwitch {
     #[func]
@@ -630,4 +668,40 @@ impl HadalythTwitch {
         self._kill_helix_client();
         self._kill_twitch_socket();
     }
+}
+
+// CDN helper functions
+#[godot_api(secondary)]
+impl HadalythTwitch {
+
+    // Nothing here yet
+
+    // MVP probably something like:
+    // - Emote downloading/caching/serving
+    // - Profile downloading/caching/serving
+    // - Badge downloading/caching/serving
+    // - 
+
+    // I think I should make a godot class that listens for a signal containing the
+    // Texture2D that was requested and updates itself based on that.
+    // Or I could just hold a reference to the returned texture in this singleton and manage it from here?
+    // I could hold a reference to the texture in a hashset until I have the resource figured out
+    // Once the resource is figured out, just update the texture and remove it from the hashset
+    // Or I could have a hashmap of vectors of textures to each emote, badge, and profile?
+    // I like that approach I think.  I would need a placeholder for each that I can load immediately.
+    // That's not that bad.
+
+    // Okay.  I am going to lazily populate a hashmap of Texture2D
+    // If I can't immediately load a texture from disk because it doesnt exist or it's older than X days, I will
+    // make a request to download the new texture from twitch's server.
+    // Once that is resolved I will push the texture into the control node asynchronously.
+
+}
+
+// Helix endpoint functions
+#[godot_api(secondary)]
+impl HadalythTwitch {
+
+    // Nothing here yet
+
 }

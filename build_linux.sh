@@ -7,7 +7,7 @@ echo
 BASE_DIR=$(cd -- "$(dirname -- "${B_SOURCE[0]}")" &> /dev/null && pwd)
 NDI_SO="$BASE_DIR/api/ndi_sdk/lib/x86_64-linux-gnu/libndi.so"
 
-GLIBC_VERSION="2.41"
+GLIBC_VERSION="2.31"
 
 echo
 echo "DEBUG BUILDS"

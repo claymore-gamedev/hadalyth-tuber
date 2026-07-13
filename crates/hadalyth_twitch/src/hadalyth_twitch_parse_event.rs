@@ -11,6 +11,7 @@ use crate::custom_resources::timestamp::Timestamp;
 use crate::custom_resources::user::User;
 
 use crate::custom_traits::to_godot_message::ToGodotMessage;
+use crate::custom_traits::to_automod_message_status::ToGodotAutomodMessageStatus;
 
 use super::hadalyth_twitch::HadalythTwitch;
 
@@ -587,6 +588,30 @@ impl HadalythTwitch {
 
                         godot_error!("Event not implemented yet");
 
+                        let broadcaster = User::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot(),
+                        );
+
+                        let user = User::create(
+                            payload.user_id.to_string().to_godot(),
+                            payload.user_login.to_string().to_godot(),
+                            payload.user_name.to_string().to_godot(),
+                        );
+
+                        let message_id = payload.message_id.to_string();
+
+                        let message = payload.message;
+                        let message = message.to_godot_message();
+
+                        self.signals().recv_channel_chat_user_message_hold_v1().emit(
+                            &broadcaster,
+                            &user,
+                            message_id,
+                            &message
+                        );
+
                     }
                     _ => {}
                 }
@@ -602,7 +627,32 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
 
-                        godot_error!("Event not implemented yet");
+                        let broadcaster = User::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot(),
+                        );
+
+                        let user = User::create(
+                            payload.user_id.to_string().to_godot(),
+                            payload.user_login.to_string().to_godot(),
+                            payload.user_name.to_string().to_godot(),
+                        );
+
+                        let message_id = payload.message_id.to_string();
+
+                        let message = payload.message;
+                        let message = message.to_godot_message();
+
+                        let status = payload.status.to_godot_automod_message_status();
+
+                        self.signals().recv_channel_chat_user_message_update_v1().emit(
+                            &broadcaster,
+                            &user,
+                            message_id,
+                            &message,
+                            status
+                        );
 
                     }
                     _ => {}
@@ -619,7 +669,36 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
 
-                        godot_error!("Event not implemented yet");
+                        let broadcaster = User::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot(),
+                        );
+
+                        let emote_mode = payload.emote_mode;
+
+                        let follower_mode = payload.follower_mode;
+                        let follower_mode_duration_minutes = payload.follower_mode_duration_minutes;
+                        let follower_mode_duration_minutes = follower_mode_duration_minutes.unwrap_or(0) as i64;
+
+                        let slow_mode = payload.slow_mode;
+                        let slow_mode_wait_time_seconds = payload.slow_mode_wait_time_seconds;
+                        let slow_mode_wait_time_seconds = slow_mode_wait_time_seconds.unwrap_or(0) as i64;
+
+                        let subscriber_mode = payload.subscriber_mode;
+
+                        let unique_chat_mode = payload.unique_chat_mode;
+
+                        self.signals().recv_channel_chat_settings_update_v1().emit(
+                            &broadcaster,
+                            emote_mode,
+                            follower_mode,
+                            follower_mode_duration_minutes,
+                            slow_mode,
+                            slow_mode_wait_time_seconds,
+                            subscriber_mode,
+                            unique_chat_mode
+                        );
 
                     }
                     _ => {}
@@ -738,6 +817,54 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        let broadcaster = User::create(
+                            payload.broadcaster_id.to_string().to_godot(),
+                            payload.broadcaster_login.to_string().to_godot(),
+                            payload.broadcaster_name.to_string().to_godot(),
+                        );
+                        
+                        let charity = Charity::create(
+                            payload.charity_description.to_godot(),
+                            payload.charity_logo.to_godot(),
+                            payload.charity_name.to_godot(),
+                            payload.charity_website.to_godot()
+                        );
+
+                        let current_amount = payload.current_amount;
+                        let current_amount = Currency::create(
+                            current_amount.value, 
+                            current_amount.decimal_places, 
+                            current_amount.currency.to_godot()
+                        );
+
+                        let target_amount = payload.target_amount;
+                        let target_amount = Currency::create(
+                            target_amount.value, 
+                            target_amount.decimal_places, 
+                            target_amount.currency.to_godot()
+                        );
+
+                        let started_at = payload.started_at;
+                        let started_at = Timestamp::create(
+                            started_at.year().into(), 
+                            started_at.month().into(), 
+                            started_at.day().into(), 
+                            started_at.hour().into(), 
+                            started_at.minute().into(), 
+                            started_at.second().into()
+                        );
+
+                        let campaign_id = payload.id.as_str().to_string();
+
+                        self.signals().recv_channel_charity_campaign_start_v1().emit(
+                            &broadcaster,
+                            &charity,
+                            &current_amount,
+                            &target_amount,
+                            &started_at,
+                            campaign_id
+                        )
                     }
                     _ => {}
                 }
@@ -752,6 +879,55 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+
+                        let broadcaster = User::create(
+                            payload.broadcaster_id.to_string().to_godot(),
+                            payload.broadcaster_login.to_string().to_godot(),
+                            payload.broadcaster_name.to_string().to_godot(),
+                        );
+                        
+                        let charity = Charity::create(
+                            payload.charity_description.to_godot(),
+                            payload.charity_logo.to_godot(),
+                            payload.charity_name.to_godot(),
+                            payload.charity_website.to_godot()
+                        );
+
+                        let current_amount = payload.current_amount;
+                        let current_amount = Currency::create(
+                            current_amount.value, 
+                            current_amount.decimal_places, 
+                            current_amount.currency.to_godot()
+                        );
+
+                        let target_amount = payload.target_amount;
+                        let target_amount = Currency::create(
+                            target_amount.value, 
+                            target_amount.decimal_places, 
+                            target_amount.currency.to_godot()
+                        );
+
+                        let stopped_at = payload.stopped_at;
+                        let stopped_at = Timestamp::create(
+                            stopped_at.year().into(), 
+                            stopped_at.month().into(), 
+                            stopped_at.day().into(), 
+                            stopped_at.hour().into(), 
+                            stopped_at.minute().into(), 
+                            stopped_at.second().into()
+                        );
+
+                        let campaign_id = payload.id.as_str().to_string();
+
+                        self.signals().recv_channel_charity_campaign_stop_v1().emit(
+                            &broadcaster,
+                            &charity,
+                            &current_amount,
+                            &target_amount,
+                            &stopped_at,
+                            campaign_id
+                        )
+
                     }
                     _ => {}
                 }

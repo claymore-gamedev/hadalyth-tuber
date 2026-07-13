@@ -4,6 +4,7 @@ struct HadalythTwitchExtensionLibrary;
 
 mod custom_config;
 mod custom_events;
+mod custom_enums;
 mod custom_resources;
 mod custom_traits;
 
