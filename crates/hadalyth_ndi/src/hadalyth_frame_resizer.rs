@@ -11,8 +11,8 @@ impl HadalythFrameResizer {
         Self {
             resizer: fast_image_resize::Resizer::new(),
             dst: fast_image_resize::images::Image::new(
-                1920, 
-                1080, 
+                2560, 
+                1440, 
                 fast_image_resize::PixelType::U8x4
             ),
         }
@@ -24,7 +24,7 @@ impl HadalythFrameResizer {
         height: i64,
         data: &'a [u8],
     ) -> (i64, i64, Option<&'a [u8]>) {
-        if width <= 1920 && height <= 1080 {
+        if width <= 2560 && height <= 1440 {
             return (width, height, Some(data));
         }
 
@@ -50,6 +50,6 @@ impl HadalythFrameResizer {
             }
         }
 
-        (1920, 1080, Some(self.dst.buffer()))
+        (2560, 1440, Some(self.dst.buffer()))
     }
 }
