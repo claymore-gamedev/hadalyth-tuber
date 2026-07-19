@@ -161,6 +161,7 @@ impl INode for HadalythTwitch {
     }
 }
 
+
 #[godot_api]
 impl HadalythTwitch {
     // BITS TYPE CONSTS
@@ -677,6 +678,7 @@ impl HadalythTwitch {
     }
 }
 
+
 // CDN helper functions
 #[godot_api(secondary)]
 impl HadalythTwitch {
@@ -687,7 +689,6 @@ impl HadalythTwitch {
     // - Emote downloading/caching/serving
     // - Profile downloading/caching/serving
     // - Badge downloading/caching/serving
-    // - 
 
     // I think I should make a godot class that listens for a signal containing the
     // Texture2D that was requested and updates itself based on that.
@@ -705,10 +706,13 @@ impl HadalythTwitch {
 
 }
 
+
 // Helix endpoint functions
 #[godot_api(secondary)]
 impl HadalythTwitch {
 
     // Nothing here yet
+
+    // I don't really care about any of the helix functions and might not even implement these.
 
 }
