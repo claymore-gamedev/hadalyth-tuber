@@ -343,7 +343,14 @@ impl HadalythTwitch {
         campaign_id : String
     );
     #[signal]
-    pub fn recv_channel_update_v2();
+    pub fn recv_channel_update_v2(
+        &broadcaster : Option<Gd<User>>,
+        category_id : String,
+        category_name : String,
+        content_classification_labels : PackedStringArray,
+        language : String,
+        title : String
+    );
     #[signal]
     pub fn recv_channel_follow_v2();
     #[signal]

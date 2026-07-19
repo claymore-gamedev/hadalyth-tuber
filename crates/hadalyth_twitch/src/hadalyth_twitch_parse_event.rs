@@ -942,6 +942,36 @@ impl HadalythTwitch {
                     twitch_api::eventsub::Message::Revocation() => {}
                     twitch_api::eventsub::Message::Notification(payload) => {
                         godot_print!("\t{:?}", payload);
+                        
+                        let broadcaster = User::create(
+                            payload.broadcaster_user_id.to_string().to_godot(),
+                            payload.broadcaster_user_login.to_string().to_godot(),
+                            payload.broadcaster_user_name.to_string().to_godot(),
+                        );
+
+                        let category_id = payload.category_id.to_string();
+                        let category_name = payload.category_name.to_string();
+
+                        let content_classification_labels : Vec<GString> = payload.content_classification_labels
+                            .iter()
+                            .map(|x| {
+                                serde_json::to_string(x).unwrap_or("None".to_string()).to_godot()
+                            }).collect();
+                        let content_classification_labels = PackedStringArray::from(content_classification_labels);
+                        
+                        let language = payload.language;
+                        
+                        let title = payload.title;
+                        
+                        self.signals().recv_channel_update_v2().emit(
+                            &broadcaster,
+                            category_id,
+                            category_name,
+                            &content_classification_labels,
+                            language,
+                            title
+                        )
+
                     }
                     _ => {}
                 }
